@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Add Project{% endblock %}
+
+{% block content %}
+    <h1>Add a New Project</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div>{{ form.title.label }}<br> {{ form.title() }}</div>
+        <div>{{ form.description.label }}<br>  {{ form.description() }}</div>
+        {% if form.user %}
+            <div>{{ form.user.label }}<br>{{ form.user() }}</div>
+    
+        {% endif %}
+        <div class="mb-3">
+            {{ form.deadline.label(class="form-label") }} <br>
+            {{ form.deadline(class="form-control") }}
+        </div>
+
+        <div>{{ form.submit() }}</div>
+    </form>
+{% endblock %}

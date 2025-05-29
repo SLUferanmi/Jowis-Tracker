@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Add Milestone</h2>
+  <form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+      {{ form.name.label }} <br>
+      {{ form.name(class="form-control") }}
+    </div>
+    <div class="form-group">
+      {{ form.deadline.label }} <br>
+      {{ form.deadline(type="datetime-local") }}
+    </div>
+    <div class="form-group">
+      {{ form.status.label }}
+      {{ form.status() }}
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Add</button>
+  </form>
+</div>
+{% endblock %}

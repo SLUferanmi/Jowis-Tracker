@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>{{ project.title }}</h3>
+    <p><strong>Description:</strong> {{ project.description }}</p>
+    <p><strong>Assigned to:</strong> {{ project.user.username }}</p>
+    <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
+
+
+    <a href="{{ url_for('main.edit_project', project_id=project.id) }}" class="btn btn-warning mb-3">Edit Project</a>
+
+    <hr>
+    <h4>Milestones</h4>
+
+    <a href="{{ url_for('main.add_milestone', project_id=project.id) }}" class="btn btn-primary mb-3">Add Milestone</a>
+
+    {% if milestones %}
+        <ul class="list-group">
+            {% for milestone in milestones %}
+                <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ milestone.name }}</strong> <br>
+                            <small class="text-muted">
+                                Deadline: {{ milestone.deadline.strftime('%Y-%m-%d %H:%M') if milestone.deadline else 'No deadline set' }}
+                            </small>
+                        </div>
+                        <div class="text-end">
+                            {% if milestone.status == 'Completed' %}
+                                <span class="badge bg-success">Completed</span>
+                            {% elif milestone.status == 'Pending' %}
+                                <span class="badge bg-danger">Pending</span>
+                            {% elif milestone.status == 'In Progress' %}
+                                <span class="badge bg-warning text-dark">In Progress</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Unknown</span>
+                            {% endif %}
+                            <a href="{{ url_for('main.edit_milestone', milestone_id=milestone.id) }}" class="btn btn-sm btn-outline-warning ms-2">Edit</a>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No milestones yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

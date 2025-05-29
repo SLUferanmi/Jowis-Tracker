@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Edit Project</h3>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">Project Title</label>
+            <input type="text" name="title" class="form-control" value="{{ project.title }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea name="description" class="form-control">{{ project.description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="deadline">Deadline:</label>
+            <input type="datetime-local" name="deadline" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update Project</button>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

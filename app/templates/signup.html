@@ -1,0 +1,24 @@
+
+{% extends "base.html" %} 
+
+{% block content %}
+<head>
+    <title>Sign Up</title>
+</head>
+<body>
+    <h2>Create Account</h2>
+    
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        {{ form.username.label }} {{ form.username() }}<br>
+        {{ form.email.label }} {{ form.email() }}<br>
+        {{ form.password.label }} {{ form.password() }}<br>
+        <div class="form-group">
+        {{ form.admin_code.label }} {{ form.admin_code(class="form-control") }}<br>
+        </div>
+        {{ form.submit() }}
+    </form>
+    <p>Already have an account? <a href="{{ url_for('main.login') }}">Login</a></p>
+</body>
+
+{% endblock %}

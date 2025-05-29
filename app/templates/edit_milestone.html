@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h3>Edit Milestone</h3>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">Milestone Name</label>
+            <input type="text" name="name" class="form-control" value="{{ milestone.name }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="Pending" {% if milestone.status == "Pending" %}selected{% endif %}>Pending</option>
+                <option value="In Progress" {% if milestone.status == "In Progress" %}selected{% endif %}>In Progress</option>
+                <option value="Completed" {% if milestone.status == "Completed" %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Deadline</label>
+            <input type="datetime-local" name="deadline" value="{{ milestone.deadline.strftime('%Y-%m-%dT%H:%M') if milestone.deadline else '' }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Update Milestone</button>
+        <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
