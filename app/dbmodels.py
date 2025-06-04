@@ -28,6 +28,17 @@ class Project(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"), nullable=False)
     user = db.relationship('User', back_populates='projects')
     deadline = db.Column(db.DateTime, nullable=False, default = datetime.now(timezone.utc)) # default to current time in UTC
+    status = db.Column(db.String(20), nullable=False, default="Pending") 
+    comment = db.Column(db.Text, nullable=True) 
+    def update_status(self):
+        if not self.milestones or self.milestones.count() == 0:
+            self.status = "Pending"
+        elif all(m.status == "Completed" for m in self.milestones):
+            self.status = "Completed"
+        elif any(m.status == "Pending" for m in self.milestones):
+            self.status = "Pending"
+        else:
+            self.status = "In Progress"
 
 class Milestone(db.Model):
     id = db.Column(db.Integer, primary_key=True)

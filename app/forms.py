@@ -22,7 +22,15 @@ class ProjectForm(FlaskForm):
     user = QuerySelectField('Assign User', query_factory=employee_query, get_label='username', allow_blank=False)
     deadline = DateTimeLocalField("Project Deadline", format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     submit = SubmitField('Create Project')
-
+    status = SelectField(
+        'Status',
+        choices=[
+            ('Pending', 'Pending'),
+            ('In Progress', 'In Progress'),
+            ('Completed', 'Completed')
+        ],
+        default='Pending'
+    )
 
 class MilestoneForm(FlaskForm):
     name = StringField('Milestone Name', validators=[DataRequired()])

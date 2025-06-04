@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>User Details</h2>
+  <ul class="list-group">
+    <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+    <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
+    <li class="list-group-item"><strong>Role:</strong> {{ user.role }}</li>
+    <li class="list-group-item">
+      <strong>Total Projects Assigned:</strong> {{ user.projects|length }}
+      <a href="{{ url_for('main.admin_user_projects', user_id=user.id) }}" class="btn btn-outline-primary btn-sm ms-3">View Projects</a>
+    </li>
+  </ul>
+  <a href="{{ url_for('main.admin_users') }}" class="btn btn-secondary mt-3">Back to Users</a>
+</div>
+{% endblock %}

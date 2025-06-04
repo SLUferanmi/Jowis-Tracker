@@ -15,6 +15,23 @@
             {{ form.deadline.label(class="form-label") }} <br>
             {{ form.deadline(class="form-control") }}
         </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <div class="btn-group w-100" role="group" aria-label="Status">
+                <input type="radio" class="btn-check" name="status" id="pending" value="Pending" autocomplete="off"
+                    {% if form.status.data == 'Pending' %}checked{% endif %}>
+                <label class="btn btn-danger" for="pending">Pending</label>
+
+                <input type="radio" class="btn-check" name="status" id="inprogress" value="In Progress" autocomplete="off"
+                    {% if form.status.data == 'In Progress' %}checked{% endif %}>
+                <label class="btn btn-warning text-dark" for="inprogress">In Progress</label>
+
+                <input type="radio" class="btn-check" name="status" id="completed" value="Completed" autocomplete="off"
+                    {% if form.status.data == 'Completed' %}checked{% endif %}>
+                <label class="btn btn-success" for="completed">Completed</label>
+            </div>
+        </div>
 
         <div>{{ form.submit() }}</div>
     </form>

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>All Projects{% if request.args.get('status') %} ({{ request.args.get('status') }}){% endif %}</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Assigned To</th>
+        <th>Status</th>
+        <th>Deadline</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for project in projects %}
+      <tr>
+        <td>{{ project.title }}</td>
+        <td>{{ project.user.username }}</td>
+        <td>
+          {% if project.status == 'Completed' %}
+            <span class="badge bg-success">Completed</span>
+          {% elif project.status == 'Pending' %}
+            <span class="badge bg-danger">Pending</span>
+          {% elif project.status == 'In Progress' %}
+            <span class="badge bg-warning text-dark">In Progress</span>
+          {% else %}
+            <span class="badge bg-secondary">Unknown</span>
+          {% endif %}
+        </td>
+        <td>{{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</td>
+        <td>
+          <a href="{{ url_for('main.admin_project_detail', project_id=project.id) }}" class="btn btn-info btn-sm">View/Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

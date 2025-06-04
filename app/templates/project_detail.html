@@ -5,7 +5,23 @@
     <p><strong>Description:</strong> {{ project.description }}</p>
     <p><strong>Assigned to:</strong> {{ project.user.username }}</p>
     <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
+    <p><strong>Status:</strong>
+      {% if project.status == 'Completed' %}
+        <span class="badge bg-success">Completed</span>
+      {% elif project.status == 'Pending' %}
+        <span class="badge bg-danger">Pending</span>
+      {% elif project.status == 'In Progress' %}
+        <span class="badge bg-warning text-dark">In Progress</span>
+      {% else %}
+        <span class="badge bg-secondary">Unknown</span>
+      {% endif %}
+    </p>
 
+    {% if project.comment %}
+      <div class="alert alert-info mt-3">
+        <strong>Admin Comment:</strong> {{ project.comment }}
+      </div>
+    {% endif %}
 
     <a href="{{ url_for('main.edit_project', project_id=project.id) }}" class="btn btn-warning mb-3">Edit Project</a>
 

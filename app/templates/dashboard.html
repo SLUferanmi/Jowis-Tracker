@@ -16,6 +16,17 @@
           <h5 class="card-title">{{ project.title }}</h5>
           <h6 class="card-subtitle mb-2 text-muted">Assigned to: {{ project.user.username }}</h6>
           <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
+          <p><strong>Status:</strong>
+            {% if project.status == 'Completed' %}
+              <span class="badge bg-success">Completed</span>
+            {% elif project.status == 'Pending' %}
+              <span class="badge bg-danger">Pending</span>
+            {% elif project.status == 'In Progress' %}
+              <span class="badge bg-warning text-dark">In Progress</span>
+            {% else %}
+              <span class="badge bg-secondary">Unknown</span>
+            {% endif %}
+          </p>
 
 
           {% if project.milestones %}
