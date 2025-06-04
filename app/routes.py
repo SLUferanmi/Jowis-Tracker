@@ -7,6 +7,7 @@ from datetime import datetime
 from .forms import SignupForm, ProjectForm, MilestoneForm
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
+from app.utils import send_email
 
 # Create a blueprint for the main routes
 main = Blueprint("main", __name__)
@@ -133,6 +134,12 @@ def add_project():
         db.session.add(project)
         db.session.commit()
         flash('Project added successfully!', 'success')
+        if assigned_user.email:
+            send_email(
+                subject="New Project Assigned",
+                recipients=[assigned_user.email],
+                body=f"Hi {assigned_user.username},\n\nA new project '{project.title}' has been assigned to you.\n\nPlease log in to view details."
+        )
         if current_user.role == "admin":
             return redirect(url_for('main.admin_dashboard'))
         else:
@@ -295,6 +302,14 @@ def admin_project_detail(project_id):
         project.comment = request.form.get('comment')
         db.session.commit()
         flash("Project updated successfully!", "success")
+        
+        if project.user.email:
+            send_email(
+                subject="Admin Comment on Your Project",
+                recipients=[project.user.email],
+                body=f"Hi {project.user.username},\n\nAn admin commented on your project '{project.title}':\n\n{project.comment}\n\nPlease log in to view details."
+            )
+
         return redirect(url_for('main.admin_project_detail', project_id=project.id))
     return render_template('admin_project_detail.html', project=project)
 
@@ -306,6 +321,33 @@ def admin_user_projects(user_id):
     user = User.query.get_or_404(user_id)
     projects = user.projects
     return render_template('admin_user_projects.html', user=user, projects=projects)
+
+@main.route('/admin/projects/<int:project_id>/delete', methods=['POST'])
+@login_required
+def delete_project(project_id):
+    if current_user.role != "admin":
+        abort(403)
+    project = Project.query.get_or_404(project_id)
+    db.session.delete(project)
+    db.session.commit()
+    flash("Project deleted.", "success")
+    return redirect(url_for('main.admin_projects'))
+
+@main.route('/project/<int:project_id>/delete', methods=['POST'])
+@login_required
+def employee_delete_project(project_id):
+    project = Project.query.get_or_404(project_id)
+    # Only allow the assigned user or admin to delete
+    if current_user.id != project.user_id and current_user.role != "admin":
+        abort(403)
+    db.session.delete(project)
+    db.session.commit()
+    flash("Project deleted.", "success")
+    # Redirect based on role
+    if current_user.role == "admin":
+        return redirect(url_for('main.admin_projects'))
+    else:
+        return redirect(url_for('main.dashboard'))
 
 
 

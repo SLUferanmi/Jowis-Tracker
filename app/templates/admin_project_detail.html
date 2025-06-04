@@ -40,6 +40,10 @@
     <a href="{{ url_for('main.admin_projects') }}" class="btn btn-secondary">Back to Projects</a>
   </form>
 
+  <form action="{{ url_for('main.delete_project', project_id=project.id) }}" method="POST" style="display:inline;">
+    <button type="submit" class="btn btn-danger mt-3" onclick="return confirm('Delete this project?');">Delete Project</button>
+  </form>
+
   <hr>
   <h4>Milestones</h4>
   {% if project.milestones %}
