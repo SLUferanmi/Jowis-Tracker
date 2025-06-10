@@ -14,7 +14,8 @@
         
         <div class="mb-3">
             <label for="deadline">Deadline:</label>
-            <input type="datetime-local" name="deadline" required>
+            <input type="datetime-local" name="deadline" required
+                value="{{ project.deadline.strftime('%Y-%m-%dT%H:%M') if project.deadline else '' }}">
         </div>
 
         <div class="mb-3">

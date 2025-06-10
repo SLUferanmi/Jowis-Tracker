@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Account Details</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Username</label>
+      <input class="form-control" type="text" name="username" value="{{ current_user.username }}">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input class="form-control" type="email" name="email" value="{{ current_user.email }}">
+    </div>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </form>
+</div>
+{% endblock %}

@@ -7,14 +7,25 @@
         {{ form.hidden_tag() }}
         <div>{{ form.title.label }}<br> {{ form.title() }}</div>
         <div>{{ form.description.label }}<br>  {{ form.description() }}</div>
-        {% if form.user %}
-            <div>{{ form.user.label }}<br>{{ form.user() }}</div>
-    
-        {% endif %}
         <div class="mb-3">
             {{ form.deadline.label(class="form-label") }} <br>
-            {{ form.deadline(class="form-control") }}
+            {{ form.deadline(class="form-control", type="datetime-local") }}
         </div>
+        {% if employees %}
+        <div class="mb-3">
+            <label class="form-label"><strong>Assign Users</strong></label>
+            <div>
+                {% for employee in employees %}
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="assigned_users" id="user{{ employee.id }}" value="{{ employee.id }}">
+                        <label class="form-check-label" for="user{{ employee.id }}">
+                            {{ employee.username }} ({{ employee.email }})
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
         
         <div class="mb-3">
             <label class="form-label">Status</label>
@@ -22,17 +33,21 @@
                 <input type="radio" class="btn-check" name="status" id="pending" value="Pending" autocomplete="off"
                     {% if form.status.data == 'Pending' %}checked{% endif %}>
                 <label class="btn btn-danger" for="pending">Pending</label>
-
                 <input type="radio" class="btn-check" name="status" id="inprogress" value="In Progress" autocomplete="off"
                     {% if form.status.data == 'In Progress' %}checked{% endif %}>
                 <label class="btn btn-warning text-dark" for="inprogress">In Progress</label>
-
                 <input type="radio" class="btn-check" name="status" id="completed" value="Completed" autocomplete="off"
                     {% if form.status.data == 'Completed' %}checked{% endif %}>
                 <label class="btn btn-success" for="completed">Completed</label>
             </div>
         </div>
-
         <div>{{ form.submit() }}</div>
     </form>
+    
+    {% for field, errors in form.errors.items() %}
+      <div class="alert alert-danger">
+        {{ field }}: {{ errors|join(', ') }}
+      </div>
+    {% endfor %}
+    
 {% endblock %}

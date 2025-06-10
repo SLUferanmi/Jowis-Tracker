@@ -4,7 +4,13 @@
 <div class="container mt-4">
   <h2 class="mb-4">Project Dashboard</h2>
   <h4>Welcome, {{ current_user.username }}!</h4><a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger btn-sm float-end mb-3">Logout</a>
-
+  
+  {% if pending_invites %}
+  <div class="alert alert-warning" style="animation: blinker 1s linear infinite;">
+    <strong>You have {{ pending_invites|length }} pending project invite{{ 's' if pending_invites|length > 1 else '' }}!</strong>
+    <a href="{{ url_for('main.invitation_details') }}" class="btn btn-sm btn-primary ms-2">View Invites</a>
+  </div>
+  {% endif %}
 
   <a href="{{ url_for('main.add_project') }}" class="btn btn-primary mb-4">Add Project</a>
 
@@ -14,7 +20,12 @@
       <div class="card mb-4 shadow-sm">
         <div class="card-body">
           <h5 class="card-title">{{ project.title }}</h5>
-          <h6 class="card-subtitle mb-2 text-muted">Assigned to: {{ project.user.username }}</h6>
+          <h6 class="card-subtitle mb-2 text-muted">
+            Assigned to:
+            {% for user in project.users %}
+              {{ user.username }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </h6>
           <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
           <p><strong>Status:</strong>
             {% if project.status == 'Completed' %}
@@ -57,5 +68,10 @@
 </div>
 
 
+<style>
+@keyframes blinker {
+  50% { opacity: 0.5; }
+}
+</style>
 
 {% endblock %}

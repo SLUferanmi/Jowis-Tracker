@@ -1,59 +1,42 @@
-from flask import render_template, redirect, url_for
-from flask import flash, request, Blueprint, abort
+from flask import render_template, redirect, url_for, flash, request, Blueprint, abort
 from flask_login import login_user, logout_user, login_required, current_user
-from .dbmodels import User, db, Project, Milestone, Task
-from app import db
-from datetime import datetime
+from .dbmodels import User, db, Project, Milestone, Task, ProjectInvite
+from datetime import datetime, timedelta
 from .forms import SignupForm, ProjectForm, MilestoneForm
-from werkzeug.security import generate_password_hash, check_password_hash
 import os
 from app.utils import send_email
+import random
+import secrets
+import string
 
-# Create a blueprint for the main routes
 main = Blueprint("main", __name__)
 
-# Route for the home page
 @main.route("/")
-def index(): 
+def index():
     return render_template("index.html")
 
-# Route for dashboard page
 @main.route("/dashboard")
 @login_required
 def dashboard():
     if current_user.role == "admin":
-        # Fetch all users for manager
         projects = Project.query.all()
     else:
         projects = current_user.projects
+    pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
+    return render_template("dashboard.html", projects=projects, pending_invites=pending_invites)
 
-    project_data = []
-    for project in projects:
-        latest_milestone = Milestone.query.filter_by(project_id=project.id).order_by(Milestone.deadline.desc()).first()
-        project_data.append({
-            "project": project,
-            "latest_milestone": latest_milestone
-        })
-        # Fetch projects for employee
-    return render_template("dashboard.html", projects=projects)
-
-# route for more details of a project
 @main.route("/project/<int:project_id>")
 @login_required
 def project_detail(project_id):
     project = Project.query.get_or_404(project_id)
-    if project.user_id != current_user.id and current_user.role != 'admin':
+    if current_user.role != 'admin' and current_user not in project.users:
         abort(403)
-
     milestones = Milestone.query.filter_by(project_id=project.id).order_by(Milestone.deadline).all()
-
     return render_template("project_detail.html", project=project, milestones=milestones)
 
-
-# Route for login page
 @main.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method== "POST":
+    if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
         user = User.query.filter_by(username=username).first()
@@ -66,115 +49,131 @@ def login():
         else:
             flash("Invalid username or password", "danger")
     return render_template("login.html")
-    
+
 @main.route("/logout")
 @login_required
 def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for("main.login"))
-    
 
-# Route for signup page
 ADMIN_SECRET = os.getenv('ADMIN_SECRET', 'jowisadmin123')
 @main.route("/signup", methods=["GET", "POST"])
 def signup():
     form = SignupForm()
     if form.validate_on_submit():
-        existing_mail = User.query.filter_by(email= form.email.data).first()
-        existing_username = User.query.filter_by(username= form.username.data).first()
-
+        existing_mail = User.query.filter_by(email=form.email.data).first()
+        existing_username = User.query.filter_by(username=form.username.data).first()
         if existing_mail:
             flash("Email already registered. Please use a different email.", "danger")
             return redirect(url_for("main.signup"))
-        
         if existing_username:
             flash("Username already taken. Please choose a different username.", "danger")
             return redirect(url_for("main.signup"))
-        
-        # Determine role based on admin code
         entered_code = form.admin_code.data.strip() if form.admin_code.data else ""
         role = "admin" if entered_code == ADMIN_SECRET else "employee"
-        
-        # Create a new user instance
         new_user = User(
-            username = form.username.data, 
-            email= form.email.data,
-            role= role
+            username=form.username.data,
+            email=form.email.data,
+            role=role
         )
         new_user.set_password(form.password.data)
-        
-        # Add the new user to the database
         db.session.add(new_user)
         db.session.commit()
         flash("Account created successfully! You can now log in.", "success")
         return redirect(url_for("main.login"))
-    
     return render_template("signup.html", form=form)
-
-# Route for creating a new project
-
 
 @main.route('/add_project', methods=['GET', 'POST'])
 @login_required
 def add_project():
     form = ProjectForm()
-    if form.validate_on_submit():
-        if current_user.role == "admin":
-            assigned_user = form.user.data
-        else:
-            assigned_user = current_user
+    employees = User.query.filter_by(role='employee').all() if current_user.role == "admin" else []
+    if current_user.role != "admin" and hasattr(form, 'users'):
+        del form.users
+
+    if request.method == 'POST':
+        title = request.form.get('title')
+        description = request.form.get('description')
+        deadline_str = request.form.get('deadline')
+        status = request.form.get('status')
+
+        # Validate required fields
+        if not title or not description or not deadline_str or not status:
+            flash("Please fill in all required fields.", "danger")
+            return render_template('add_project.html', form=form, employees=employees)
+
+        try:
+            deadline = datetime.strptime(deadline_str, "%Y-%m-%dT%H:%M")
+        except ValueError:
+            flash("Invalid deadline format. Please use the date picker.", "danger")
+            return render_template('add_project.html', form=form, employees=employees)
+
         project = Project(
-            title=form.title.data,
-            description=form.description.data,
-            deadline=form.deadline.data,
-            user_id=assigned_user.id,
-            status=form.status.data
+            title=title,
+            description=description,
+            deadline=deadline,
+            status=status
         )
+        if current_user.role == "admin":
+            selected_user_ids = request.form.getlist('assigned_users')
+            selected_users = User.query.filter(User.id.in_(selected_user_ids)).all()
+            project.users = selected_users
+        else:
+            project.users = [current_user]
         db.session.add(project)
         db.session.commit()
         flash('Project added successfully!', 'success')
-        if assigned_user.email:
-            send_email(
-                subject="New Project Assigned",
-                recipients=[assigned_user.email],
-                body=f"Hi {assigned_user.username},\n\nA new project '{project.title}' has been assigned to you.\n\nPlease log in to view details."
-        )
         if current_user.role == "admin":
             return redirect(url_for('main.admin_dashboard'))
         else:
             return redirect(url_for('main.dashboard'))
-    return render_template('add_project.html', form=form)
+    return render_template('add_project.html', form=form, employees=employees)
 
-#Update project form route
 @main.route("/project/<int:project_id>/edit", methods=["GET"])
 @login_required
 def edit_project(project_id):
     project = Project.query.get_or_404(project_id)
     form = ProjectForm(obj=project)
-    if int(project.user_id) != int(current_user.id):
+    if current_user.role == "admin":
+        form.users.choices = [(u.id, u.username) for u in User.query.all()]
+    else:
+        if hasattr(form, 'users'):
+            del form.users
+    if current_user.role != 'admin' and current_user not in project.users:
         flash("You do not have permission to edit this project.", "danger")
-        abort (403)
-        return redirect(url_for("main.dashboard"))
+        abort(403)
     return render_template("edit_project.html", project=project, form=form)
 
-# update project save route
 @main.route("/project/<int:project_id>/edit", methods=["POST"])
 @login_required
 def update_project(project_id):
     project = Project.query.get_or_404(project_id)
     form = ProjectForm(obj=project)
+    if current_user.role == "admin":
+        form.users.choices = [(u.id, u.username) for u in User.query.all()]
+    else:
+        if hasattr(form, 'users'):
+            del form.users
     if form.validate_on_submit():
-        if project.user_id != current_user.id:
+        if current_user.role != 'admin' and current_user not in project.users:
             flash("You do not have permission to edit this project.", "danger")
-            abort (403)
-    project.title = request.form["title"]
-    project.description = request.form["description"]
-    project.deadline = form.deadline.data
-    project.status = form.status.data
-    db.session.commit()
-    flash("Project updated successfully!", "success")
-    return redirect(url_for("main.dashboard"))
+            abort(403)
+        project.title = form.title.data
+        project.description = form.description.data
+        project.deadline = form.deadline.data
+        project.status = form.status.data
+        if current_user.role == "admin":
+            selected_users = User.query.filter(User.id.in_(form.users.data)).all()
+            project.users = selected_users
+        db.session.commit()
+        flash("Project updated successfully!", "success")
+        return redirect(url_for("main.dashboard"))
+    # If not valid, re-render form
+    else:
+        if request.method == "POST":
+            flash("Please correct the errors in the form.", "danger")
+    return render_template("edit_project.html", project=project, form=form)
 
 @main.route('/project/<int:project_id>/add_milestone', methods=['GET', 'POST'])
 @login_required
@@ -190,41 +189,42 @@ def add_milestone(project_id):
         )
         db.session.add(milestone)
         db.session.commit()
-        project.update_status()  
-        db.session.commit()
+        if hasattr(project, "update_status"):
+            project.update_status()
+            db.session.commit()
         flash('Milestone added successfully!', 'success')
         return redirect(url_for('main.dashboard'))
+    else:
+        if request.method == "POST":
+            flash("Please correct the errors in the form.", "danger")
     return render_template('add_milestone.html', form=form, project_id=project_id)
 
-# edit milestone form route
 @main.route("/milestone/<int:milestone_id>/edit", methods=["GET"])
 @login_required
 def edit_milestone(milestone_id):
     milestone = Milestone.query.get_or_404(milestone_id)
-    if milestone.project.user_id != current_user.id:
+    if current_user.role != 'admin' and current_user not in milestone.project.users:
         flash("You do not have permission to edit this milestone.", "danger")
-        abort (403)
+        abort(403)
     return render_template("edit_milestone.html", milestone=milestone)
 
-# update milestone save route
 @main.route("/milestone/<int:milestone_id>/edit", methods=["POST"])
 @login_required
 def update_milestone(milestone_id):
     milestone = Milestone.query.get_or_404(milestone_id)
-    if milestone.project.user_id != current_user.id:
+    if current_user.role != 'admin' and current_user not in milestone.project.users:
         flash("You do not have permission to edit this milestone.", "danger")
-        abort (403)
+        abort(403)
     milestone.name = request.form["name"]
     deadline_input = request.form.get("deadline")
     if deadline_input:
         try:
-            # Adjust format depending on your HTML input (assumed YYYY-MM-DD)
             milestone.deadline = datetime.strptime(deadline_input, "%Y-%m-%dT%H:%M")
         except ValueError:
             flash("Invalid date format. Please use YYYY-MM-DD.", "danger")
             return redirect(request.url)
     else:
-        milestone.deadline = None  # allow blank deadline
+        milestone.deadline = None
     milestone.status = request.form["status"]
     db.session.commit()
     flash("Milestone updated successfully!", "success")
@@ -292,6 +292,8 @@ def admin_project_detail(project_id):
     if current_user.role != "admin":
         abort(403)
     project = Project.query.get_or_404(project_id)
+    employees = User.query.filter_by(role='employee').all()
+    assigned_user_ids = [u.id for u in project.users]
     if request.method == 'POST':
         project.title = request.form.get('title')
         project.description = request.form.get('description')
@@ -300,18 +302,20 @@ def admin_project_detail(project_id):
             project.deadline = datetime.strptime(deadline_input, "%Y-%m-%dT%H:%M")
         project.status = request.form.get('status')
         project.comment = request.form.get('comment')
+        selected_user_ids = request.form.getlist('assigned_users')
+        selected_users = User.query.filter(User.id.in_(selected_user_ids)).all()
+        project.users = selected_users
         db.session.commit()
         flash("Project updated successfully!", "success")
-        
-        if project.user.email:
-            send_email(
-                subject="Admin Comment on Your Project",
-                recipients=[project.user.email],
-                body=f"Hi {project.user.username},\n\nAn admin commented on your project '{project.title}':\n\n{project.comment}\n\nPlease log in to view details."
-            )
-
+        for user in project.users:
+            if user.email:
+                send_email(
+                    subject="Admin Comment on Your Project",
+                    recipients=[user.email],
+                    body=f"Hi {user.username},\n\nAn admin commented on your project '{project.title}':\n\n{project.comment}\n\nPlease log in to view details."
+                )
         return redirect(url_for('main.admin_project_detail', project_id=project.id))
-    return render_template('admin_project_detail.html', project=project)
+    return render_template('admin_project_detail.html', project=project,  employees=employees, assigned_user_ids=assigned_user_ids)
 
 @main.route('/admin/users/<int:user_id>/projects')
 @login_required
@@ -337,17 +341,129 @@ def delete_project(project_id):
 @login_required
 def employee_delete_project(project_id):
     project = Project.query.get_or_404(project_id)
-    # Only allow the assigned user or admin to delete
-    if current_user.id != project.user_id and current_user.role != "admin":
+    if current_user.role != "admin" and current_user not in project.users:
         abort(403)
     db.session.delete(project)
     db.session.commit()
     flash("Project deleted.", "success")
-    # Redirect based on role
     if current_user.role == "admin":
         return redirect(url_for('main.admin_projects'))
     else:
         return redirect(url_for('main.dashboard'))
+
+@main.route('/forgot_password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        user = User.query.filter_by(email=email).first()
+        if user:
+            code = ''.join(random.choices(string.digits, k=6))
+            user.reset_code = code
+            user.reset_code_expiry = datetime.utcnow() + timedelta(minutes=15)
+            db.session.commit()
+            send_email(
+                subject="Password Reset Code",
+                recipients=[user.email],
+                body=f"Your password reset code is: {code}\nThis code expires in 15 minutes."
+            )
+            return redirect(url_for('main.reset_password', user_id=user.id))
+        else:
+            flash("No account found with that email.", "danger")
+    return render_template('forgot_password.html')
+
+@main.route('/reset_password/<int:user_id>', methods=['GET', 'POST'])
+def reset_password(user_id):
+    user = User.query.get_or_404(user_id)
+    if request.method == 'POST':
+        code = request.form.get('code')
+        new_password = request.form.get('new_password')
+        if (user.reset_code == code and 
+            user.reset_code_expiry and 
+            user.reset_code_expiry > datetime.utcnow()):
+            user.set_password(new_password)
+            user.reset_code = None
+            user.reset_code_expiry = None
+            db.session.commit()
+            flash("Password reset successful! You can now log in.", "success")
+            return redirect(url_for('main.login'))
+        else:
+            flash("Invalid or expired code.", "danger")
+    return render_template('reset_password.html', user=user)
+
+@main.route('/project/<int:project_id>/invite', methods=['GET', 'POST'])
+@login_required
+def invite_user(project_id):
+    project = Project.query.get_or_404(project_id)
+    if request.method == 'POST':
+        email = request.form.get('email')
+        token = secrets.token_urlsafe(32)
+        invite = ProjectInvite(email=email, project_id=project.id, inviter_id=current_user.id, token=token)
+        db.session.add(invite)
+        db.session.commit()
+        accept_url = url_for('main.dashboard', _external=True)
+        send_email(
+            subject="Project Collaboration Invite",
+            recipients=[email],
+            body=f"You've been invited to join the project '{project.title}'.\n"
+                 f"Login to your dashboard to accept the invite.\n"
+                 f"Project details:\nTitle: {project.title}\nDescription: {project.description}\nDeadline: {project.deadline}\n"
+                 f"Invited by: {current_user.username}\n"
+                 f"Or click: {accept_url}"
+        )
+        flash("Invitation sent.", "success")
+        if current_user.role == "admin":
+            return redirect(url_for('main.admin_project_detail', project_id=project.id))
+        else:
+            return redirect(url_for('main.project_detail', project_id=project.id))
+    return render_template('invite_user.html', project=project)
+
+@main.route('/accept_invite/<int:invite_id>', methods=['POST'])
+@login_required
+def accept_invite(invite_id):
+    invite = ProjectInvite.query.get_or_404(invite_id)
+    if invite.email != current_user.email or invite.accepted:
+        abort(403)
+    if hasattr(invite.project, 'users'):
+        invite.project.users.append(current_user)
+    invite.accepted = True
+    db.session.commit()
+    flash("You have joined the project!", "success")
+    return redirect(url_for('main.dashboard'))
+
+@main.route('/invitations')
+@login_required
+def invitation_details():
+    pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
+    return render_template('invitation_details.html', pending_invites=pending_invites)
+
+@main.route('/account', methods=['GET', 'POST'])
+@login_required
+def account():
+    if request.method == 'POST':
+        old_username = current_user.username
+        old_email = current_user.email
+        username = request.form.get('username')
+        email = request.form.get('email')
+        changed = False
+
+        if username and username != current_user.username:
+            current_user.username = username
+            changed = True
+        if email and email != current_user.email:
+            current_user.email = email
+            changed = True
+
+        if changed:
+            db.session.commit()
+            send_email(
+                subject="Account Details Changed",
+                recipients=[current_user.email],
+                body=f"Hi {current_user.username},\n\nYour account details have been updated.\n\nIf you did not make this change, please contact support."
+            )
+            flash("Account details updated and notification sent to your email.", "success")
+        else:
+            flash("No changes made.", "info")
+    return render_template('account.html')
 
 
 

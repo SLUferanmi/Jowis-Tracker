@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Invite Collaborator to "{{ project.title }}"</h2>
+  <form method="POST">
+    <div class="mb-3">
+      <label for="email" class="form-label">User Email</label>
+      <input type="email" name="email" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Send Invite</button>
+    <a href="{{ url_for('main.project_detail', project_id=project.id) }}" class="btn btn-secondary">Back</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Pending Project Invitations</h2>
+  {% if pending_invites %}
+    <ul class="list-group mb-4">
+      {% for invite in pending_invites %}
+        <li class="list-group-item">
+          <strong>Project:</strong> {{ invite.project.title }}<br>
+          <strong>Invited by:</strong> {{ invite.inviter.username }}<br>
+          <strong>Deadline:</strong> {{ invite.project.deadline.strftime('%Y-%m-%d %H:%M') if invite.project.deadline else 'N/A' }}<br>
+          <strong>Description:</strong> {{ invite.project.description }}<br>
+          <form method="POST" action="{{ url_for('main.accept_invite', invite_id=invite.id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-success btn-sm mt-2">Accept</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No pending invitations.</p>
+  {% endif %}
+</div>
+{% endblock %}

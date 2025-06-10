@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms.fields import DateTimeLocalField
-from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField, BooleanField, DateTimeField, SelectField
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, DateField, BooleanField, DateTimeField, SelectField, SelectMultipleField
 from wtforms_sqlalchemy.fields import QuerySelectField
 from wtforms.validators import DataRequired, Email, Length, Optional, EqualTo
 from .dbmodels import User
@@ -18,19 +18,11 @@ def employee_query():
 
 class ProjectForm(FlaskForm):
     title = StringField('Project Title', validators=[DataRequired()])
-    description = TextAreaField('Description')
-    user = QuerySelectField('Assign User', query_factory=employee_query, get_label='username', allow_blank=False)
-    deadline = DateTimeLocalField("Project Deadline", format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
-    submit = SubmitField('Create Project')
-    status = SelectField(
-        'Status',
-        choices=[
-            ('Pending', 'Pending'),
-            ('In Progress', 'In Progress'),
-            ('Completed', 'Completed')
-        ],
-        default='Pending'
-    )
+    description = TextAreaField('Description', validators=[DataRequired()])
+    deadline = DateTimeLocalField('Deadline', format='%Y-%m-%dT%H:%M')
+    status = SelectField('Status', choices=[('Pending', 'Pending'), ('In Progress', 'In Progress'), ('Completed', 'Completed')])
+    users = SelectMultipleField('Assign Users', coerce=int)  # Only used by admin
+    submit = SubmitField('Add Project')
 
 class MilestoneForm(FlaskForm):
     name = StringField('Milestone Name', validators=[DataRequired()])

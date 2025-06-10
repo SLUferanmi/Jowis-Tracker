@@ -53,7 +53,11 @@
               <span class="badge bg-secondary">Unknown</span>
             {% endif %}
           </p>
-          <p><strong>Assigned to:</strong> {{ project.user.username }}</p>
+          <p><strong>Assigned to:</strong> 
+            {% for user in project.users %}
+              {{ user.username }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+          </p>
           <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
           <h6>Milestones:</h6>
           {% if project.milestones %}

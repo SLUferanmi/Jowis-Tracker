@@ -3,8 +3,13 @@
 <div class="container mt-4">
     <h3>{{ project.title }}</h3>
     <p><strong>Description:</strong> {{ project.description }}</p>
-    <p><strong>Assigned to:</strong> {{ project.user.username }}</p>
+    <p><strong>Assigned to:</strong>
+      {% for user in project.users %}
+        {{ user.username }}{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
     <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
+    <a href="{{ url_for('main.invite_user', project_id=project.id) }}" class="btn btn-outline-primary mb-3">Invite Collaborator</a>
     <p><strong>Status:</strong>
       {% if project.status == 'Completed' %}
         <span class="badge bg-success">Completed</span>

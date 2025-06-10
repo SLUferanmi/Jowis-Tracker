@@ -16,7 +16,11 @@
       {% for project in projects %}
       <tr>
         <td>{{ project.title }}</td>
-        <td>{{ project.user.username }}</td>
+        <td>
+          {% for user in project.users %}
+            {{ user.username }}{% if not loop.last %}, {% endif %}
+          {% endfor %}
+        </td>
         <td>
           {% if project.status == 'Completed' %}
             <span class="badge bg-success">Completed</span>
