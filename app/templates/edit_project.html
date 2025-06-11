@@ -3,40 +3,36 @@
 <div class="container mt-4">
     <h3>Edit Project</h3>
     <form method="POST">
+        {{ form.hidden_tag() }}
         <div class="mb-3">
-            <label class="form-label">Project Title</label>
-            <input type="text" name="title" class="form-control" value="{{ project.title }}" required>
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control") }}
         </div>
         <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea name="description" class="form-control">{{ project.description }}</textarea>
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-control") }}
         </div>
-        
         <div class="mb-3">
-            <label for="deadline">Deadline:</label>
-            <input type="datetime-local" name="deadline" required
-                value="{{ project.deadline.strftime('%Y-%m-%dT%H:%M') if project.deadline else '' }}">
+            {{ form.deadline.label(class="form-label") }}
+            {{ form.deadline(class="form-control", type="datetime-local") }}
         </div>
-
         <div class="mb-3">
-            <label class="form-label">Status</label>
-            <div class="btn-group w-100" role="group" aria-label="Status">
-                <input type="radio" class="btn-check" name="status" id="pending" value="Pending" autocomplete="off"
-                    {% if form.status.data == 'Pending' %}checked{% endif %}>
-                <label class="btn btn-danger" for="pending">Pending</label>
-
-                <input type="radio" class="btn-check" name="status" id="inprogress" value="In Progress" autocomplete="off"
-                    {% if form.status.data == 'In Progress' %}checked{% endif %}>
-                <label class="btn btn-warning text-dark" for="inprogress">In Progress</label>
-
-                <input type="radio" class="btn-check" name="status" id="completed" value="Completed" autocomplete="off"
-                    {% if form.status.data == 'Completed' %}checked{% endif %}>
-                <label class="btn btn-success" for="completed">Completed</label>
-            </div>
+            {{ form.status.label(class="form-label") }}
+            {{ form.status(class="form-select") }}
         </div>
-
+        {% if current_user.role == "admin" and form.users %}
+        <div class="mb-3">
+            {{ form.users.label(class="form-label") }}
+            {{ form.users(class="form-select", multiple=True) }}
+        </div>
+        {% endif %}
         <button type="submit" class="btn btn-primary">Update Project</button>
         <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Cancel</a>
     </form>
+    {% for field, errors in form.errors.items() %}
+      <div class="alert alert-danger mt-2">
+        {{ field }}: {{ errors|join(', ') }}
+      </div>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -13,6 +13,9 @@
           <form method="POST" action="{{ url_for('main.accept_invite', invite_id=invite.id) }}" style="display:inline;">
             <button type="submit" class="btn btn-success btn-sm mt-2">Accept</button>
           </form>
+          <form method="POST" action="{{ url_for('main.decline_invite', invite_id=invite.id) }}" style="display:inline;">
+            <button type="submit" class="btn btn-danger btn-sm mt-2">Decline</button>
+          </form>
         </li>
       {% endfor %}
     </ul>

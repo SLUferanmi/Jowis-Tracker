@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Notifications</h2>
+  <ul class="list-group">
+    {% for notif in notifications %}
+      <li class="list-group-item{% if not notif.is_read %} list-group-item-info{% endif %}">
+        {{ notif.message }} <br>
+        <small class="text-muted">{{ notif.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+      </li>
+    {% else %}
+      <li class="list-group-item">No notifications.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

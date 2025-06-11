@@ -18,6 +18,15 @@
         <li class="nav-item">
           <a class="nav-link" href="{{ url_for('main.logout') }}">Logout</a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('main.notifications') }}">
+            <i class="bi bi-bell"></i> Notifications
+            {% set unread = current_user.notifications|selectattr('is_read', 'eq', False)|list %}
+            {% if unread|length > 0 %}
+              <span class="badge bg-danger">{{ unread|length }}</span>
+            {% endif %}
+          </a>
+        </li>
       </ul>
     </div>
   </div>

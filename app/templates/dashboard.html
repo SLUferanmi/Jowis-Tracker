@@ -13,6 +13,11 @@
   {% endif %}
 
   <a href="{{ url_for('main.add_project') }}" class="btn btn-primary mb-4">Add Project</a>
+  <div class="mb-4">
+    <a href="{{ url_for('main.dashboard', show_pending=1) }}" class="btn btn-outline-secondary">View Pending Projects</a>
+    <a href="{{ url_for('main.dashboard', show_completed=1) }}" class="btn btn-outline-success ms-2">View Completed Projects</a>
+    <a href="{{ url_for('main.dashboard', show_all=1) }}" class="btn btn-outline-primary ms-2">View All Projects</a>
+  </div>
 
   <div class="row">
     {% for project in projects %}
@@ -39,24 +44,21 @@
             {% endif %}
           </p>
 
-
-          {% if project.milestones %}
-            {% set urgent = project.milestones|sort(attribute='deadline', reverse=False)|first %}
+          {% set incomplete_milestones = project.milestones | selectattr('status', 'ne', 'Completed') | sort(attribute='deadline') | list %}
+          {% if incomplete_milestones %}
+            {% set urgent = incomplete_milestones[0] %}
             <p>
               <strong>Prioritized Milestone:</strong> {{ urgent.name }}
-            
-                            {% if urgent.status == 'Completed' %}
-                                <span class="badge bg-success ms-4">Completed</span>
-                            {% elif urgent.status == 'Pending' %}
-                                <span class="badge bg-danger ms-4">Pending</span>
-                            {% elif urgent.status == 'In Progress' %}
-                                <span class="badge bg-warning text-dark ms-4">In Progress</span>
-                            {% else %}
-                                <span class="badge bg-secondary ms-4">Unknown</span>
-                            {% endif %}
-              </p>
+              {% if urgent.status == 'Pending' %}
+                <span class="badge bg-danger ms-4">Pending</span>
+              {% elif urgent.status == 'In Progress' %}
+                <span class="badge bg-warning text-dark ms-4">In Progress</span>
+              {% else %}
+                <span class="badge bg-secondary ms-4">Unknown</span>
+              {% endif %}
+            </p>
           {% else %}
-            <p class="text-muted">No milestones yet.</p>
+            <p class="text-muted">No prioritized milestones (all completed or none exist).</p>
           {% endif %}
 
           <a href="{{ url_for('main.project_detail', project_id=project.id) }}" class="btn btn-primary btn-sm mt-2">View Details</a>

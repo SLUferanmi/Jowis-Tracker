@@ -1,10 +1,10 @@
 from flask import render_template, redirect, url_for, flash, request, Blueprint, abort
 from flask_login import login_user, logout_user, login_required, current_user
-from .dbmodels import User, db, Project, Milestone, Task, ProjectInvite
+from .dbmodels import User, db, Project, Milestone, Task, ProjectInvite, Notification
 from datetime import datetime, timedelta
 from .forms import SignupForm, ProjectForm, MilestoneForm
 import os
-from app.utils import send_email
+from app.utils import send_email, notify
 import random
 import secrets
 import string
@@ -18,10 +18,30 @@ def index():
 @main.route("/dashboard")
 @login_required
 def dashboard():
-    if current_user.role == "admin":
-        projects = Project.query.all()
+    show_completed = request.args.get('show_completed')
+    show_all = request.args.get('show_all')
+    show_pending = request.args.get('show_pending')
+    if show_all:
+        if current_user.role == "admin":
+            projects = Project.query.all()
+        else:
+            projects = current_user.projects
+    elif show_completed:
+        if current_user.role == "admin":
+            projects = Project.query.filter_by(status='Completed').all()
+        else:
+            projects = [p for p in current_user.projects if p.status == 'Completed']
+    elif show_pending:
+        if current_user.role == "admin":
+            projects = Project.query.filter(Project.status != 'Completed').all()
+        else:
+            projects = [p for p in current_user.projects if p.status != 'Completed']
     else:
-        projects = current_user.projects
+        # Default to pending
+        if current_user.role == "admin":
+            projects = Project.query.filter(Project.status != 'Completed').all()
+        else:
+            projects = [p for p in current_user.projects if p.status != 'Completed']
     pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
     return render_template("dashboard.html", projects=projects, pending_invites=pending_invites)
 
@@ -124,6 +144,11 @@ def add_project():
         db.session.add(project)
         db.session.commit()
         flash('Project added successfully!', 'success')
+        for user in project.users:
+            if user == current_user:
+                notify(user, f"You successfully created the project '{project.title}'.")
+            else:
+                notify(user, f"You have been assigned to a new project: '{project.title}'.")
         if current_user.role == "admin":
             return redirect(url_for('main.admin_dashboard'))
         else:
@@ -168,6 +193,12 @@ def update_project(project_id):
             project.users = selected_users
         db.session.commit()
         flash("Project updated successfully!", "success")
+        # Notify users about the project update
+        for user in project.users:
+            if user == current_user:
+                notify(user, f"You updated the project '{project.title}'.")
+            else:
+                notify(user, f"Project '{project.title}' was updated.")
         return redirect(url_for("main.dashboard"))
     # If not valid, re-render form
     else:
@@ -193,6 +224,11 @@ def add_milestone(project_id):
             project.update_status()
             db.session.commit()
         flash('Milestone added successfully!', 'success')
+        for user in project.users:
+            if user == current_user:
+                notify(user, f"You added a new milestone '{milestone.name}' to project '{project.title}'.")
+            else:
+                notify(user, f"A new milestone '{milestone.name}' was added to project '{project.title}'.")
         return redirect(url_for('main.dashboard'))
     else:
         if request.method == "POST":
@@ -228,6 +264,12 @@ def update_milestone(milestone_id):
     milestone.status = request.form["status"]
     db.session.commit()
     flash("Milestone updated successfully!", "success")
+    # Notify users about the milestone update
+    for user in milestone.project.users:
+        if user == current_user:
+            notify(user, f"You updated milestone '{milestone.name}' in project '{milestone.project.title}'.")
+        else:
+            notify(user, f"Milestone '{milestone.name}' in project '{milestone.project.title}' was updated.")
     return redirect(url_for("main.dashboard"))
 
 @main.route('/admin')
@@ -261,8 +303,11 @@ def admin_projects():
     if current_user.role != "admin":
         abort(403)
     status = request.args.get('status')
+    show_completed = request.args.get('show_completed')
     if status:
         projects = Project.query.filter_by(status=status).all()
+    elif show_completed:
+        projects = Project.query.filter_by(status='Completed').all() if current_user.role == "admin" else [p for p in current_user.projects if p.status == 'Completed']
     else:
         projects = Project.query.all()
     return render_template('admin_projects.html', projects=projects)
@@ -346,6 +391,12 @@ def employee_delete_project(project_id):
     db.session.delete(project)
     db.session.commit()
     flash("Project deleted.", "success")
+    # Notify users about the project deletion
+    for user in project.users:
+        if user == current_user:
+            notify(user, f"You deleted the project '{project.title}'.")
+        else:
+            notify(user, f"Project '{project.title}' was deleted.")
     if current_user.role == "admin":
         return redirect(url_for('main.admin_projects'))
     else:
@@ -377,6 +428,10 @@ def reset_password(user_id):
     if request.method == 'POST':
         code = request.form.get('code')
         new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return render_template('reset_password.html', user=user)
         if (user.reset_code == code and 
             user.reset_code_expiry and 
             user.reset_code_expiry > datetime.utcnow()):
@@ -411,6 +466,11 @@ def invite_user(project_id):
                  f"Or click: {accept_url}"
         )
         flash("Invitation sent.", "success")
+        notify(current_user, f"You sent an invite to {email} for project '{project.title}'.")
+        # Optionally, notify the invited user if they already exist in the system:
+        invited_user = User.query.filter_by(email=email).first()
+        if invited_user:
+            notify(invited_user, f"You have been invited to join the project '{project.title}'.")
         if current_user.role == "admin":
             return redirect(url_for('main.admin_project_detail', project_id=project.id))
         else:
@@ -428,6 +488,22 @@ def accept_invite(invite_id):
     invite.accepted = True
     db.session.commit()
     flash("You have joined the project!", "success")
+    notify(current_user, f"You accepted the invite to '{invite.project.title}'.")
+    notify(invite.inviter, f"{current_user.username} accepted your invite to '{invite.project.title}'.")
+    return redirect(url_for('main.dashboard'))
+
+@main.route('/decline_invite/<int:invite_id>', methods=['POST'])
+@login_required
+def decline_invite(invite_id):
+    invite = ProjectInvite.query.get_or_404(invite_id)
+    if invite.email != current_user.email or invite.accepted:
+        abort(403)
+    invite.accepted = False
+    db.session.commit()
+    notify(invite.inviter, f"{current_user.username} declined your invite to '{invite.project.title}'.")
+    flash("You have declined the invitation.", "info")
+    notify(current_user, f"You declined the invite to '{invite.project.title}'.")
+    notify(invite.inviter, f"{current_user.username} declined your invite to '{invite.project.title}'.")
     return redirect(url_for('main.dashboard'))
 
 @main.route('/invitations')
@@ -461,9 +537,68 @@ def account():
                 body=f"Hi {current_user.username},\n\nYour account details have been updated.\n\nIf you did not make this change, please contact support."
             )
             flash("Account details updated and notification sent to your email.", "success")
+            notify(current_user, "Your account details were updated.")
         else:
             flash("No changes made.", "info")
     return render_template('account.html')
+
+@main.route('/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    if request.method == 'POST':
+        # Send code to email
+        code = ''.join(random.choices(string.digits, k=6))
+        current_user.reset_code = code
+        current_user.reset_code_expiry = datetime.utcnow() + timedelta(minutes=15)
+        db.session.commit()
+        send_email(
+            subject="Password Change Code",
+            recipients=[current_user.email],
+            body=f"Your password change code is: {code}\nThis code expires in 15 minutes."
+        )
+        flash("A code has been sent to your email. Enter it below to change your password.", "info")
+        return redirect(url_for('main.confirm_change_password'))
+    return render_template('change_password.html')
+
+@main.route('/confirm_change_password', methods=['GET', 'POST'])
+@login_required
+def confirm_change_password():
+    
+    if request.method == 'POST':
+        code = request.form.get('code')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+        if new_password != confirm_password:
+            flash("Passwords do not match.", "danger")
+            return render_template('reset_password.html', user=current_user)
+        if (current_user.reset_code == code and
+            current_user.reset_code_expiry and
+            current_user.reset_code_expiry > datetime.utcnow()):
+            current_user.set_password(new_password)
+            current_user.reset_code = None
+            current_user.reset_code_expiry = None
+            db.session.commit()
+            send_email(
+                subject="Password Changed",
+                recipients=[current_user.email],
+                body="Your password has been changed successfully. If you did not perform this action, contact support immediately."
+            )
+            flash("Password changed successfully.", "success")
+            notify(current_user, "Your password was changed.")
+            return redirect(url_for('main.account'))
+        else:
+            flash("Invalid or expired code.", "danger")
+    return render_template('confirm_change_password.html')
+
+@main.route('/notifications')
+@login_required
+def notifications():
+    notifs = Notification.query.filter_by(user_id=current_user.id).order_by(Notification.created_at.desc()).all()
+    # Mark all as read
+    for n in notifs:
+        n.is_read = True
+    db.session.commit()
+    return render_template('notifications.html', notifications=notifs)
 
 
 

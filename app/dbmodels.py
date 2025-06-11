@@ -83,3 +83,11 @@ class ProjectInvite(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     project = db.relationship('Project', backref='invites')
     inviter = db.relationship('User', foreign_keys=[inviter_id])
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete="CASCADE"))
+    message = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_read = db.Column(db.Boolean, default=False)
+    user = db.relationship('User', backref='notifications')
