@@ -16,3 +16,4 @@ class Config:
     MAIL_USERNAME = 'feranmi.j@jowistudio.com'  # Replace with your email address
     MAIL_PASSWORD = 'rNFiUiSpcKqN'
     MAIL_DEFAULT_SENDER = 'feranmi.j@jowistudio.com' 
+    MAIL_USE_SSL = False
