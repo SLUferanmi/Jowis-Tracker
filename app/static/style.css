@@ -106,8 +106,8 @@ input[type="submit"] {
   cursor: pointer;
   transition: background-color 0.3s ease;
   position: relative;
-  top: 45px;
-  left: 45px;
+  top: 0px;
+  left: 0px;
 }
 
 input[type="submit"]:hover {
@@ -722,4 +722,24 @@ input[type="submit"]:hover {
   box-shadow: 0 4px 24px rgba(33, 150, 243, 0.1);
   /* padding: 2.5rem 1rem 1rem 1rem; */
   justify-content: center;
+}
+.btn .btn.btn-primary {
+  background: linear-gradient(90deg, #9119d2 0%, #8442f5 100%);
+  color: #fff;
+  border: none;
+  border-radius: 2em;
+  font-weight: 600;
+  padding: 0.6em 2em;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(145, 25, 210, 0.08);
+  position: relative;
+  left: 0px;
+  top: 0px;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.btn.btn-primary:hover {
+  background: linear-gradient(90deg, #6c19d2 0%, #9119d2 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(145, 25, 210, 0.15);
 }
