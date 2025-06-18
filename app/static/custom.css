@@ -1,0 +1,324 @@
+/* General background */
+body {
+  background: linear-gradient(120deg, #f3e6fa 0%, #faf5ff 100%);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  margin: 0;
+  padding: 0;
+}
+
+/* Signup/Login Container */
+.signup-container {
+  max-width: 550px;
+  margin: 40px auto;
+  background: #f3e6fa;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(153, 50, 204, 0.1);
+  padding: 2.5rem 2rem 2rem 2rem;
+}
+
+/* Headings */
+h2,
+.signup-container h2 {
+  color: #9932cc;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Input styles */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="datetime-local"],
+textarea,
+select,
+.form-control {
+  border-radius: 0.7rem;
+  border: 1px solid #b266ff;
+  background: #faf5ff;
+  padding: 0.7rem 1rem;
+  font-size: 1.08rem;
+  margin-bottom: 1rem;
+  transition: border 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="datetime-local"]:focus,
+textarea:focus,
+select:focus,
+.form-control:focus {
+  border-color: #9932cc;
+  background: #f3e6fa;
+  outline: none;
+}
+
+/* Button styles */
+.btn,
+input[type="submit"],
+.submit,
+.btn-primary,
+.btn-outline-primary,
+.button {
+  border-radius: 2em;
+  font-weight: 600;
+  padding: 0.6em 2em;
+  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
+  color: #fff !important;
+  border: none;
+  transition: background 0.2s;
+  font-size: 16px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.btn:hover,
+input[type="submit"]:hover,
+.submit:hover,
+.btn-primary:hover,
+.btn-outline-primary:hover,
+.button:hover {
+  background: linear-gradient(90deg, #6a1b9a 0%, #9932cc 100%);
+  color: #fff !important;
+}
+
+/* Login link */
+.signup-login-link {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 1.08rem;
+}
+.signup-login-link a {
+  color: #9932cc;
+  font-weight: 600;
+  text-decoration: underline;
+}
+.signup-login-link a:hover {
+  color: #6a1b9a;
+  text-decoration: none;
+}
+
+/* Card and dashboard styles */
+.card,
+.card-body,
+.card-header.bg-primary {
+  background: #fff;
+  border-radius: 1.2rem;
+  box-shadow: 0 4px 24px rgba(153, 50, 204, 0.1);
+  border: none;
+}
+
+.card-header.bg-primary {
+  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%) !important;
+  color: #fff;
+  border-radius: 1.2rem 1.2rem 0 0;
+  box-shadow: 0 2px 8px rgba(153, 50, 204, 0.08);
+}
+
+.card-title {
+  color: #6a1b9a;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  color: #a084ca;
+  font-size: 0.95rem;
+}
+
+/* Dashboard header */
+.dashboard-header {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #6a1b9a;
+  letter-spacing: 1px;
+  margin-bottom: 1.5rem;
+}
+
+/* Welcome/info box */
+.dashboard-info {
+  background: linear-gradient(90deg, #f3e6fa 0%, #e1bee7 100%);
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(153, 50, 204, 0.08);
+}
+
+.dashboard-info h3 {
+  color: #9932cc;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-info p {
+  color: #6a1b9a;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Badges */
+.badge {
+  align-items: center;
+  font-size: 0.9em;
+  padding: 0.4em 0.7em;
+  border-radius: 0.7em;
+  background: #b266ff;
+  color: #fff;
+}
+
+/* Navbar */
+.custom-navbar {
+  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
+  min-height: 64px;
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 2px 12px rgba(153, 50, 204, 0.08);
+}
+
+.custom-navbar .navbar-brand {
+  color: #fff !important;
+  font-size: 1.6rem;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+}
+
+.custom-navbar .navbar-brand .bi {
+  font-size: 1.5rem;
+}
+
+.custom-navbar .nav-link {
+  color: #f3e6fa !important;
+  font-weight: 500;
+  font-size: 1.08rem;
+  transition: color 0.2s, background 0.2s;
+  border-radius: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-left: 0.2rem;
+}
+
+.custom-navbar .nav-link:hover,
+.custom-navbar .nav-link.active {
+  color: #9932cc !important;
+  background: #fff;
+  text-decoration: none;
+}
+
+.custom-navbar .badge.bg-danger {
+  font-size: 0.8em;
+  padding: 0.3em 0.6em;
+  border-radius: 1em;
+  top: 8px;
+  left: 80%;
+}
+
+@media (max-width: 991px) {
+  .custom-navbar .navbar-nav {
+    background: #9932cc;
+    border-radius: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+  }
+  .custom-navbar .nav-link {
+    color: #fff !important;
+    margin: 0.2rem 0;
+  }
+}
+
+/* Table styles */
+.table-striped {
+  background: #fff;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(153, 50, 204, 0.1);
+}
+
+.table thead {
+  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.table th,
+.table td {
+  vertical-align: middle !important;
+  padding: 1rem 1.2rem;
+  border: none;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background: #f3e6fa;
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+  background: #faf5ff;
+}
+
+.table-striped tbody tr:hover {
+  background: #e1bee7;
+  transition: background 0.2s;
+}
+
+.btn-info.btn-sm {
+  background: linear-gradient(90deg, #b266ff 0%, #9932cc 100%);
+  border: none;
+  color: #fff;
+  font-weight: 500;
+  border-radius: 2em;
+  padding: 0.4em 1.2em;
+  margin-right: 0.3em;
+  transition: background 0.2s;
+}
+
+.btn-info.btn-sm:hover {
+  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
+  color: #fff;
+}
+
+.btn-danger.btn-sm {
+  border-radius: 2em;
+  padding: 0.4em 1.2em;
+  font-weight: 500;
+  background: linear-gradient(90deg, #d500f9 0%, #aa00ff 100%);
+  border: none;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.btn-danger.btn-sm:hover {
+  background: linear-gradient(90deg, #6a1b9a 0%, #9932cc 100%);
+  color: #fff;
+}
+
+/* Alerts */
+.alert-warning {
+  border-radius: 0.7em;
+  font-weight: 500;
+  background: linear-gradient(90deg, #f3e6fa 0%, #e1bee7 100%);
+  color: #6a1b9a;
+  border: none;
+}
+
+.alert-danger {
+  border-radius: 0.7em;
+  font-weight: 500;
+  background: linear-gradient(90deg, #f8bbd0 0%, #ea80fc 100%);
+  color: #6a1b9a;
+  border: none;
+  margin-top: 1rem;
+}
+
+/* Misc */
+.text-muted {
+  color: #a084ca !important;
+}
+
+@media (max-width: 768px) {
+  .dashboard-info,
+  .card-body {
+    padding: 1.2rem 1rem;
+  }
+  .dashboard-header {
+    font-size: 1.5rem;
+  }
+}

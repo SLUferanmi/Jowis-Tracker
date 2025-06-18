@@ -1,7 +1,16 @@
-{% extends "base.html" %}
-{% block content %}
+<style>
+  body {
+    background-color: red;
+  }
+</style>
+
+{% extends "base.html" %} {% block content %}
 <div class="container mt-4">
-  <a href="{{ url_for('main.logout') }}" class="btn btn-outline-danger float-end mb-3">Logout</a>
+  <!-- <a
+    href="{{ url_for('main.logout') }}"
+    class="btn btn-outline-danger float-end mb-3"
+    >Logout</a -->
+
   <h2 class="mb-4">Admin Dashboard</h2>
   <div class="row mb-4">
     <div class="col-md-4">
@@ -9,7 +18,11 @@
         <div class="card-body">
           <h5 class="card-title">Total Users</h5>
           <h2>{{ user_count }}</h2>
-          <a href="{{ url_for('main.admin_users') }}" class="btn btn-light btn-sm mt-2">View Details</a>
+          <a
+            href="{{ url_for('main.admin_users') }}"
+            class="btn btn-light btn-sm mt-2"
+            >View Details</a
+          >
         </div>
       </div>
     </div>
@@ -18,7 +31,11 @@
         <div class="card-body">
           <h5 class="card-title">Total Projects</h5>
           <h2>{{ project_count }}</h2>
-          <a href="{{ url_for('main.admin_projects') }}" class="btn btn-light btn-sm mt-2">View Details</a>
+          <a
+            href="{{ url_for('main.admin_projects') }}"
+            class="btn btn-light btn-sm mt-2"
+            >View Details</a
+          >
         </div>
       </div>
     </div>
@@ -27,13 +44,19 @@
         <div class="card-body">
           <h5 class="card-title">Completed Projects</h5>
           <h2>{{ completed_count }}</h2>
-          <a href="{{ url_for('main.admin_projects', status='Completed') }}" class="btn btn-light btn-sm mt-2">View Completed</a>
+          <a
+            href="{{ url_for('main.admin_projects', status='Completed') }}"
+            class="btn btn-light btn-sm mt-2"
+            >View Completed</a
+          >
         </div>
       </div>
     </div>
   </div>
 
-  <a href="{{ url_for('main.add_project') }}" class="btn btn-primary mb-4">Add New Project</a>
+  <a href="{{ url_for('main.add_project') }}" class="btn btn-primary mb-4"
+    >Add New Project</a
+  >
 
   <h4 class="mt-5">Projects & Milestones Overview</h4>
   <div class="row">
@@ -42,45 +65,52 @@
       <div class="card mb-3 shadow-sm">
         <div class="card-body">
           <h5 class="card-title">{{ project.title }}</h5>
-          <p><strong>Status:</strong>
+          <p>
+            <strong>Status:</strong>
             {% if project.status == 'Completed' %}
-              <span class="badge bg-success">Completed</span>
+            <span class="badge bg-success">Completed</span>
             {% elif project.status == 'Pending' %}
-              <span class="badge bg-danger">Pending</span>
+            <span class="badge bg-danger">Pending</span>
             {% elif project.status == 'In Progress' %}
-              <span class="badge bg-warning text-dark">In Progress</span>
+            <span class="badge bg-warning text-dark">In Progress</span>
             {% else %}
-              <span class="badge bg-secondary">Unknown</span>
+            <span class="badge bg-secondary">Unknown</span>
             {% endif %}
           </p>
-          <p><strong>Assigned to:</strong> 
-            {% for user in project.users %}
-              {{ user.username }}{% if not loop.last %}, {% endif %}
-            {% endfor %}
+          <p>
+            <strong>Assigned to:</strong>
+            {% for user in project.users %} {{ user.username }}{% if not
+            loop.last %}, {% endif %} {% endfor %}
           </p>
-          <p><strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</p>
+          <p>
+            <strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d
+            %H:%M') if project.deadline else 'N/A' }}
+          </p>
           <h6>Milestones:</h6>
           {% if project.milestones %}
-            <ul>
-              {% for milestone in project.milestones %}
-                <li>
-                  {{ milestone.name }} -
-                  {% if milestone.status == 'Completed' %}
-                    <span class="badge bg-success">Completed</span>
-                  {% elif milestone.status == 'Pending' %}
-                    <span class="badge bg-danger">Pending</span>
-                  {% elif milestone.status == 'In Progress' %}
-                    <span class="badge bg-warning text-dark">In Progress</span>
-                  {% else %}
-                    <span class="badge bg-secondary">Unknown</span>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
+          <ul>
+            {% for milestone in project.milestones %}
+            <li>
+              {{ milestone.name }} - {% if milestone.status == 'Completed' %}
+              <span class="badge bg-success">Completed</span>
+              {% elif milestone.status == 'Pending' %}
+              <span class="badge bg-danger">Pending</span>
+              {% elif milestone.status == 'In Progress' %}
+              <span class="badge bg-warning text-dark">In Progress</span>
+              {% else %}
+              <span class="badge bg-secondary">Unknown</span>
+              {% endif %}
+            </li>
+            {% endfor %}
+          </ul>
           {% else %}
-            <p class="text-muted">No milestones yet.</p>
+          <p class="text-muted">No milestones yet.</p>
           {% endif %}
-          <a href="{{ url_for('main.admin_project_detail', project_id=project.id) }}" class="btn btn-outline-primary btn-sm mt-2">View Project</a>
+          <a
+            href="{{ url_for('main.admin_project_detail', project_id=project.id) }}"
+            class="btn btn-outline-primary btn-sm mt-2"
+            >View Project</a
+          >
         </div>
       </div>
     </div>
