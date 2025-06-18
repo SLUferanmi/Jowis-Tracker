@@ -1,19 +1,53 @@
-{% extends "base.html" %}
-{% block content %}
+<style>
+  body {
+    background: linear-gradient(to right, #0c021d);
+  }
+</style>
 
-  <h2>Login</h2>
+{% extends "base.html" %} {% block content %}
+<div class="signup-container">
+  <img
+    class="logo"
+    src="{{ url_for('static', filename='img/Jowis-logo.png') }}"
+    alt="Logo"
+  />
+
   <form method="POST">
-    <input type="text" name="username" placeholder="Username" required>
-    <div class="input-group mb-3">
-      <input type="password" name="password" id="login_password" placeholder="Password" class="form-control" required>
-      <button type="button" class="btn btn-outline-secondary" onclick="togglePassword('login_password', this)">
-        <i class="bi bi-eye"></i>
+    <input type="text" name="username" placeholder="Username" required />
+    <div class="mb-3 position-relative">
+      <input
+        type="password"
+        name="password"
+        id="login_password"
+        placeholder="Password"
+        class="form-control m-0"
+        required
+      />
+      <button
+        type="button"
+        class="btn btn-outline-secondary position-abolute"
+        onclick="togglePassword('login_password', this)"
+        style="
+          background: none;
+          color: #5d7283;
+          position: absolute;
+          transform: translateY(-50%);
+          top: 50%;
+          right: -15px;
+        "
+      >
+        show
+        <!-- <i class="bi bi-eye"></i> -->
       </button>
     </div>
     <a href="{{ url_for('main.forgot_password') }}">Forgot Password?</a>
-    <button type="submit">Login</button>
+    <button class="submit" type="submit">Login</button>
   </form>
-  
-  <p>Don't have an account? <a href="{{ url_for('main.signup') }}">Sign up here</a></p>
-  
+
+  <p class="sign-up">
+    Don't have an account?
+    <a href="{{ url_for('main.signup') }}">Sign up here</a>
+  </p>
+</div>
+
 {% endblock %}
