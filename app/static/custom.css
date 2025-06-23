@@ -26,7 +26,7 @@ body {
 .custom-navbar {
   background: linear-gradient(90deg, #2a0066 0%, #3a0ca3 100%);
   min-height: 64px;
-  border-radius: 0 0 1rem 1rem;
+  border-radius: 0 !important;
   box-shadow: 0 2px 12px rgba(42, 0, 102, 0.08);
 }
 
@@ -199,7 +199,7 @@ input[type="submit"]:hover,
 
 /* Welcome/info box */
 .dashboard-info {
-  background: linear-gradient(90deg, #f3e6fa 0%, #e1bee7 100%);
+  background: #f7f8fa !important;
   border-radius: 1rem;
   padding: 2rem 2.5rem;
   margin-bottom: 2rem;
@@ -262,6 +262,8 @@ input[type="submit"]:hover,
 }
 
 .custom-navbar .navbar-brand {
+  font-family: 'DM Sans', 'Segoe UI', Arial, sans-serif !important;
+  font-weight: 700;
   color: #fff !important;
   font-size: 1.6rem;
   letter-spacing: 1px;

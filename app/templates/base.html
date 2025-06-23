@@ -9,6 +9,7 @@
       rel="stylesheet"
     />
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='Jowis-logo.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@700&display=swap" rel="stylesheet">
      <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
@@ -77,6 +78,24 @@
   });
       
     </script>
+        <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to logout?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            <a href="{{ url_for('main.logout') }}" class="btn btn-danger">Yes, Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
   </html>
      <!-- Add this script after your alerts in base.html -->

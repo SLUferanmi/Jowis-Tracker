@@ -63,6 +63,14 @@ def dashboard():
         pending_tasks=pending_tasks
     )
 
+@main.route("/go_dashboard")
+@login_required
+def go_dashboard():
+    if current_user.role == "admin":
+        return redirect(url_for('main.admin_dashboard'))
+    else:
+        return redirect(url_for('main.dashboard'))
+
 @main.route("/project/<int:project_id>")
 @login_required
 def project_detail(project_id):

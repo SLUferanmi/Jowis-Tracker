@@ -4,13 +4,9 @@
   }
 </style>
 
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <div class="container mt-4">
-  <!-- <a
-    href="{{ url_for('main.logout') }}"
-    class="btn btn-outline-danger float-end mb-3"
-    >Logout</a -->
-
   <h2 class="mb-4">Admin Dashboard</h2>
   <div class="row mb-4">
     <div class="col-md-4">
@@ -61,55 +57,53 @@
   <h4 class="mt-5">Projects & Milestones Overview</h4>
   <div class="row">
     {% for project in projects %}
-    <div class="col-md-6">
-      <div class="card mb-3 shadow-sm">
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
         <div class="card-body">
-          <h5 class="card-title">{{ project.title }}</h5>
-          <p>
-            <strong>Status:</strong>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title mb-0">{{ project.title }}</h5>
             {% if project.status == 'Completed' %}
-            <span class="badge bg-success">Completed</span>
+              <span class="badge bg-success">{{ project.status }}</span>
             {% elif project.status == 'Pending' %}
-            <span class="badge bg-danger">Pending</span>
+              <span class="badge bg-danger">{{ project.status }}</span>
             {% elif project.status == 'In Progress' %}
-            <span class="badge bg-warning text-dark">In Progress</span>
+              <span class="badge bg-warning text-dark">{{ project.status }}</span>
             {% else %}
-            <span class="badge bg-secondary">Unknown</span>
-            {% endif %}
-          </p>
-          <p>
-            <strong>Assigned to:</strong>
-            {% for user in project.users %} {{ user.username }}{% if not
-            loop.last %}, {% endif %} {% endfor %}
-          </p>
-          <p>
-            <strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d
-            %H:%M') if project.deadline else 'N/A' }}
-          </p>
-          <h6>Milestones:</h6>
-          {% if project.milestones %}
-          <ul>
-            {% for milestone in project.milestones %}
-            <li>
-              {{ milestone.name }} - {% if milestone.status == 'Completed' %}
-              <span class="badge bg-success">Completed</span>
-              {% elif milestone.status == 'Pending' %}
-              <span class="badge bg-danger">Pending</span>
-              {% elif milestone.status == 'In Progress' %}
-              <span class="badge bg-warning text-dark">In Progress</span>
-              {% else %}
               <span class="badge bg-secondary">Unknown</span>
+            {% endif %}
+          </div>
+          <h6 class="card-subtitle mb-2 text-muted">
+            Assigned to: {% for user in project.users %}{{ user.username }}{% if not loop.last %}, {% endif %}{% endfor %}
+          </h6>
+          <p>
+            <strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}
+          </p>
+
+          {% set incomplete_milestones = project.milestones | selectattr('status', 'ne', 'Completed') | sort(attribute='deadline') | list %}
+          {% if incomplete_milestones %}
+            {% set urgent = incomplete_milestones[0] %}
+            <div class="d-flex justify-content-between align-items-center">
+              <p class="mb-0">
+                <strong>Prioritized Milestone:</strong> {{ urgent.name }}
+              </p>
+              {% if urgent.status == 'Pending' %}
+                <span class="badge bg-danger ms-2">{{ urgent.status }}</span>
+              {% elif urgent.status == 'In Progress' %}
+                <span class="badge bg-warning text-dark ms-2">{{ urgent.status }}</span>
+              {% else %}
+                <span class="badge bg-secondary ms-2">Unknown</span>
               {% endif %}
-            </li>
-            {% endfor %}
-          </ul>
+            </div>
           {% else %}
-          <p class="text-muted">No milestones yet.</p>
+            <p class="text-muted">
+              No prioritized milestones (all completed or none exist).
+            </p>
           {% endif %}
+
           <a
             href="{{ url_for('main.admin_project_detail', project_id=project.id) }}"
-            class="btn btn-outline-primary btn-sm mt-2"
-            >View Project</a
+            class="btn btn-primary btn-sm mt-2"
+            >View Details</a
           >
         </div>
       </div>
