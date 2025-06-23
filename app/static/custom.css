@@ -1,26 +1,91 @@
 /* General background */
 body {
-  background: linear-gradient(120deg, #f3e6fa 0%, #faf5ff 100%);
+  background: #fff !important;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   color: #333;
   margin: 0;
   padding: 0;
 }
 
-/* Signup/Login Container */
-.signup-container {
-  max-width: 550px;
-  margin: 40px auto;
-  background: #f3e6fa;
+/* Card and form containers */
+.card,
+.card-body,
+.card-header.bg-primary,
+.signup-container,
+.signup-container-1,
+.form-container,
+.container-login,
+.container-signup {
+  background: #f7f8fa !important;
   border-radius: 1.2rem;
-  box-shadow: 0 4px 24px rgba(153, 50, 204, 0.1);
-  padding: 2.5rem 2rem 2rem 2rem;
+  box-shadow: 0 4px 24px rgba(42, 0, 102, 0.08);
+  border: none;
+}
+
+/* Navbar (keep your deep blue gradient if you like) */
+.custom-navbar {
+  background: linear-gradient(90deg, #2a0066 0%, #3a0ca3 100%);
+  min-height: 64px;
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 2px 12px rgba(42, 0, 102, 0.08);
+}
+
+/* Buttons (keep your accent color) */
+.btn,
+input[type="submit"],
+.submit,
+.btn-primary,
+.btn-outline-primary,
+.button {
+  background: linear-gradient(90deg, #2a0066 0%, #3a0ca3 100%);
+  color: #fff !important;
+  border: none;
+  transition: background 0.2s;
+}
+
+/* Accent for hover */
+.btn:hover,
+input[type="submit"]:hover,
+.btn-primary:hover,
+.btn-outline-primary:hover {
+  background: linear-gradient(90deg, #3a0ca3 0%, #2a0066 100%);
+  color: #fff;
+}
+
+/* Remove any other body background overrides */
+body,
+body.bg-light,
+body.bg-gradient,
+body.bg-purple,
+body.bg-pink {
+  background: #fff !important;
+}
+
+/* Optional: make dashboard-info boxes a lighter blue if you want contrast */
+.dashboard-info {
+  background: #f0f4ff !important;
+  border-radius: 1rem;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 12px rgba(33, 150, 243, 0.08);
+}
+
+/* Remove any old gradients from .container, .container-login, .container-signup, .signup-container, etc. */
+.container,
+.container-login,
+.container-signup,
+.signup-container,
+.signup-container-1,
+.form-container {
+  background: #f7f8fa !important;
+  box-shadow: 0 4px 24px rgba(42, 0, 102, 0.08);
+  border-radius: 1.2rem;
 }
 
 /* Headings */
 h2,
 .signup-container h2 {
-  color: #9932cc;
+  color: #2a0066;
   text-align: center;
   margin-bottom: 30px;
 }
@@ -61,10 +126,7 @@ input[type="submit"],
 .btn-primary,
 .btn-outline-primary,
 .button {
-  border-radius: 2em;
-  font-weight: 600;
-  padding: 0.6em 2em;
-  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
+  background: linear-gradient(90deg, #2a0066 0%, #3a0ca3 100%);
   color: #fff !important;
   border: none;
   transition: background 0.2s;
@@ -79,8 +141,8 @@ input[type="submit"]:hover,
 .btn-primary:hover,
 .btn-outline-primary:hover,
 .button:hover {
-  background: linear-gradient(90deg, #6a1b9a 0%, #9932cc 100%);
-  color: #fff !important;
+  background: linear-gradient(90deg, #3a0ca3 0%, #2a0066 100%);
+  color: #fff;
 }
 
 /* Login link */
@@ -105,7 +167,7 @@ input[type="submit"]:hover,
 .card-header.bg-primary {
   background: #fff;
   border-radius: 1.2rem;
-  box-shadow: 0 4px 24px rgba(153, 50, 204, 0.1);
+  box-shadow: 0 4px 24px rgba(42, 0, 102, 0.1);
   border: none;
 }
 
@@ -193,10 +255,10 @@ input[type="submit"]:hover,
 
 /* Navbar */
 .custom-navbar {
-  background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
+  background: linear-gradient(90deg, #2a0066 0%, #3a0ca3 100%);
   min-height: 64px;
   border-radius: 0 0 1rem 1rem;
-  box-shadow: 0 2px 12px rgba(153, 50, 204, 0.08);
+  box-shadow: 0 2px 12px rgba(42, 0, 102, 0.08);
 }
 
 .custom-navbar .navbar-brand {
