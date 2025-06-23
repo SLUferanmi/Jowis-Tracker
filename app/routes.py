@@ -42,15 +42,26 @@ def dashboard():
             projects = Project.query.filter(Project.status != 'Completed').all()
         else:
             projects = [p for p in current_user.projects if p.status != 'Completed']
-    pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
 
+    pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
 
     if current_user.role == "admin":
         active_count = Project.query.filter(Project.status != 'Completed').count()
-        pending_tasks = Milestone.query.filter(Task.status != 'Completed').count()
+        pending_tasks = Milestone.query.filter(Milestone.status != 'Completed').count()
     else:
         active_count = len([p for p in current_user.projects if p.status != 'Completed'])
-    return render_template("dashboard.html", projects=projects, pending_invites=pending_invites, active_count=active_count, pending_tasks= pending_tasks)
+        # Count all milestones in user's projects that are not completed
+        pending_tasks = sum(
+            1 for p in current_user.projects for m in p.milestones if m.status != 'Completed'
+        )
+
+    return render_template(
+        "dashboard.html",
+        projects=projects,
+        pending_invites=pending_invites,
+        active_count=active_count,
+        pending_tasks=pending_tasks
+    )
 
 @main.route("/project/<int:project_id>")
 @login_required

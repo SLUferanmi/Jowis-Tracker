@@ -166,6 +166,31 @@ input[type="submit"]:hover,
   color: #fff;
 }
 
+/* Translucent status badges */
+.badge.bg-success {
+  background: rgba(76, 175, 80, 0.18) !important;
+  color: #388e3c !important;
+  border: 1px solid #388e3c1a;
+}
+
+.badge.bg-danger {
+  background: rgba(244, 67, 54, 0.18) !important;
+  color: #b71c1c !important;
+  border: 1px solid #b71c1c1a;
+}
+
+.badge.bg-warning {
+  background: rgba(255, 193, 7, 0.18) !important;
+  color: #b28704 !important;
+  border: 1px solid #b287041a;
+}
+
+.badge.bg-secondary {
+  background: rgba(158, 158, 158, 0.18) !important;
+  color: #424242 !important;
+  border: 1px solid #4242421a;
+}
+
 /* Navbar */
 .custom-navbar {
   background: linear-gradient(90deg, #9932cc 0%, #b266ff 100%);
