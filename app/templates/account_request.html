@@ -16,5 +16,9 @@
       <button type="submit" class="btn btn-primary">Request Account</button>
     </div>
   </form>
+  <p class="sign-up mt-3">
+    Already have an account?
+    <a href="{{ url_for('main.login') }}">Login</a>
+  </p>
 </div>
 {% endblock %}
