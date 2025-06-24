@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4" style="max-width: 400px;">
+  <h2>Change Role for {{ user.username }}</h2>
+  <form method="POST">
+    <label for="role" class="form-label">Role</label>
+    <select name="role" class="form-select">
+      <option value="employee" {% if user.role == 'employee' %}selected{% endif %}>Employee</option>
+      <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+    </select>
+    <button type="submit" class="btn btn-primary mt-3">Update Role</button>
+  </form>
+</div>
+{% endblock %}

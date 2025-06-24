@@ -5,7 +5,9 @@
   <ul class="list-group">
     <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
     <li class="list-group-item"><strong>Email:</strong> {{ user.email }}</li>
-    <li class="list-group-item"><strong>Role:</strong> {{ user.role }}</li>
+    <li class="list-group-item"><strong>Role:</strong> {{ user.role|capitalize }}
+      <a href="{{ url_for('main.edit_user_role', user_id=user.id) }}" class="btn btn-sm btn-outline-primary ms-2">Change</a>
+    </li>
     <li class="list-group-item">
       <strong>Total Projects Assigned:</strong> {{ user.projects|length }}
       <a href="{{ url_for('main.admin_user_projects', user_id=user.id) }}" class="btn btn-outline-primary btn-sm ms-3">View Projects</a>

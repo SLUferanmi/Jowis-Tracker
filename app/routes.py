@@ -8,6 +8,7 @@ from app.utils import send_email, notify
 import random
 import secrets
 import string
+from flask_mail import Message
 
 main = Blueprint("main", __name__)
 
@@ -88,6 +89,9 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and user.check_password(password):
             login_user(user)
+            if getattr(user, "must_change_password", False):
+                flash("You must change your password before continuing.", "warning")
+                return redirect(url_for("main.change_password"))
             flash("Login successful!", "success")
             if user.role == "admin":
                 return redirect(url_for("main.admin_dashboard"))
@@ -104,31 +108,7 @@ def logout():
     return redirect(url_for("main.login"))
 
 ADMIN_SECRET = os.getenv('ADMIN_SECRET', 'jowisadmin123')
-@main.route("/signup", methods=["GET", "POST"])
-def signup():
-    form = SignupForm()
-    if form.validate_on_submit():
-        existing_mail = User.query.filter_by(email=form.email.data).first()
-        existing_username = User.query.filter_by(username=form.username.data).first()
-        if existing_mail:
-            flash("Email already registered. Please use a different email.", "danger")
-            return redirect(url_for("main.signup"))
-        if existing_username:
-            flash("Username already taken. Please choose a different username.", "danger")
-            return redirect(url_for("main.signup"))
-        entered_code = form.admin_code.data.strip() if form.admin_code.data else ""
-        role = "admin" if entered_code == ADMIN_SECRET else "employee"
-        new_user = User(
-            username=form.username.data,
-            email=form.email.data,
-            role=role
-        )
-        new_user.set_password(form.password.data)
-        db.session.add(new_user)
-        db.session.commit()
-        flash("Account created successfully! You can now log in.", "success")
-        return redirect(url_for("main.login"))
-    return render_template("signup.html", form=form)
+
 
 @main.route('/add_project', methods=['GET', 'POST'])
 @login_required
@@ -357,6 +337,39 @@ def view_user(user_id):
     user = User.query.get_or_404(user_id)
     return render_template('view_user.html', user=user)
 
+@main.route('/admin/create_user', methods=['GET', 'POST'])
+@login_required
+def admin_create_user():
+    if current_user.role != "admin":
+        abort(403)
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        role = request.form.get("role", "employee")
+        # Check for duplicates
+        if User.query.filter_by(username=username).first():
+            flash("Username already exists.", "danger")
+            return redirect(url_for('main.admin_create_user'))
+        if User.query.filter_by(email=email).first():
+            flash("Email already exists.", "danger")
+            return redirect(url_for('main.admin_create_user'))
+        # Set default password
+        default_password = "Jowis@1234"
+        new_user = User(username=username, email=email, role=role)
+        new_user.set_password(default_password)
+        new_user.must_change_password = True  # You need to add this field to your User model!
+        db.session.add(new_user)
+        db.session.commit()
+        # Notify and email the new user
+        send_email(
+            subject="Your Jowis Tracker Account",
+            recipients=[email],
+            body=f"Your account has been created!\nUsername: {username}\nPassword: {default_password}\nPlease log in and change your password immediately."
+        )
+        notify(new_user, "Your account has been created. Please change your password on first login.")
+        flash("User created and notified.", "success")
+        return redirect(url_for('main.admin_users'))
+    return render_template('admin_create_user.html')
 @main.route('/admin/projects/<int:project_id>', methods=['GET', 'POST'])
 @login_required
 def admin_project_detail(project_id):
@@ -603,6 +616,7 @@ def confirm_change_password():
             current_user.set_password(new_password)
             current_user.reset_code = None
             current_user.reset_code_expiry = None
+            current_user.must_change_password = False  # <-- HERE
             db.session.commit()
             send_email(
                 subject="Password Changed",
@@ -625,6 +639,40 @@ def notifications():
         n.is_read = True
     db.session.commit()
     return render_template('notifications.html', notifications=notifs)
+
+@main.route("/account_request", methods=["GET", "POST"])
+def account_request():
+    if request.method == "POST":
+        username = request.form.get("username")
+        email = request.form.get("email")
+        # Notify all admins
+        admins = User.query.filter_by(role="admin").all()
+        for admin in admins:
+            notify(admin, f"New account request: {username} ({email})")
+            # Send email to admin
+            send_email(
+                subject="New Account Request",
+                recipients=[admin.email],
+                body=f"User '{username}' with email '{email}' has requested an account."
+            )
+        flash("Your request has been sent to the admins. You will be notified by email.", "info")
+        return redirect(url_for("main.login"))
+    return render_template("account_request.html")
+
+@main.route('/admin/users/<int:user_id>/edit_role', methods=['GET', 'POST'])
+@login_required
+def edit_user_role(user_id):
+    if current_user.role != "admin":
+        abort(403)
+    user = User.query.get_or_404(user_id)
+    if request.method == "POST":
+        new_role = request.form.get("role")
+        if new_role in ["admin", "employee"]:
+            user.role = new_role
+            db.session.commit()
+            flash("User role updated.", "success")
+        return redirect(url_for('main.view_user', user_id=user.id))
+    return render_template('edit_user_role.html', user=user)
 
 
 
