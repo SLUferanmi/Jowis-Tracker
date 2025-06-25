@@ -45,6 +45,20 @@ def create_app():
     with app.app_context():
         
         db.create_all()
+
+        # --- Create default admin if none exists ---
+        from .dbmodels import User
+        if not User.query.filter_by(role="admin").first():
+            default_admin = User(
+                username="admin",
+                email="feranmijaiyeoba@gmail.com",
+                role="admin",
+                must_change_password=True
+            )
+            default_admin.set_password("Jowis@admin123")  # Set your default password here
+            db.session.add(default_admin)
+            db.session.commit()
+        # --- End default admin creation ---
     
     # import and register blueprints
     from .routes import main
