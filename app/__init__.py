@@ -42,7 +42,9 @@ def create_app():
     def load_user(user_id):
         return User.query.get(int(user_id))
     
-    
+    with app.app_context():
+        from .dbmodels import db
+        db.create_all()
     
     # import and register blueprints
     from .routes import main
