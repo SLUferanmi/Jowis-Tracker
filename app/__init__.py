@@ -1,5 +1,5 @@
 # Semi main file. Initializes flask app and modules needed
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
@@ -44,5 +44,9 @@ def create_app():
     # import and register blueprints
     from .routes import main
     app.register_blueprint(main)
+
+    @app.errorhandler(403)
+    def forbidden(e):
+        return render_template("403.html"), 403
 
     return app
