@@ -1,9 +1,12 @@
 # this file contains the models for the application
-from app import db
+
 from datetime import datetime, timezone
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 import secrets
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
 
 project_users = db.Table(
     'project_users',

@@ -7,7 +7,6 @@ from flask_mail import Mail
 from flask_apscheduler import APScheduler
 from dotenv import load_dotenv
 import os
-from .dbmodels import db
 
 # Initialize Flask modules not attached yet
 db = SQLAlchemy() 
