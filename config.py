@@ -5,15 +5,15 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Define the configuration class
 class Config:
-    SECRET_KEY = "@Busayoranmi*80"  # Replace with something tough
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, "app.db")
-    SQLALCHEMY_TRACK_MODIFICATIONS = False  # Disable track modifications to save resources
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-secret-key")
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI", "sqlite:///" + os.path.join(basedir, "app.db"))
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Email server settings
-    MAIL_SERVER = 'smtp.zoho.com' 
-    MAIL_PORT = 587
-    MAIL_USE_TLS = True
-    MAIL_USERNAME = 'feranmi.j@jowistudio.com'  # Replace with your email address
-    MAIL_PASSWORD = 'rNFiUiSpcKqN'
-    MAIL_DEFAULT_SENDER = 'feranmi.j@jowistudio.com' 
-    MAIL_USE_SSL = False
+    MAIL_SERVER = os.environ.get("MAIL_SERVER", "smtp.zoho.com")
+    MAIL_PORT = int(os.environ.get("MAIL_PORT", 587))
+    MAIL_USE_TLS = os.environ.get("MAIL_USE_TLS", "true").lower() == "true"
+    MAIL_USE_SSL = os.environ.get("MAIL_USE_SSL", "false").lower() == "true"
+    MAIL_USERNAME = os.environ.get("MAIL_USERNAME")
+    MAIL_PASSWORD = os.environ.get("MAIL_PASSWORD")
+    MAIL_DEFAULT_SENDER = os.environ.get("MAIL_DEFAULT_SENDER")

@@ -5,6 +5,8 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_apscheduler import APScheduler
+from dotenv import load_dotenv
+import os
 
 # Initialize Flask modules not attached yet
 db = SQLAlchemy() 
@@ -12,6 +14,7 @@ migrate = Migrate()
 login_manager = LoginManager()
 mail = Mail()
 scheduler = APScheduler()
+load_dotenv()
 
 # creates app function
 def create_app():
