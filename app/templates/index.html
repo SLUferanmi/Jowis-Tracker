@@ -1,6 +1,74 @@
 {% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% block title %}Welcome to JOWIS Tracker{% endblock %}
 {% block content %}
-    <h1>Welcome to JOWIS Studio</h1>
-    <a href="{{ url_for('main.dashboard') }}">Go to Dashboard</a>
+<div class="container py-5">
+  <div class="row align-items-center mb-5">
+    <div class="col-md-6 text-center text-md-start">
+      <img src="{{ url_for('static', filename='img/Jowis-logo.png') }}" alt="JOWIS Logo" style="height: 80px; margin-bottom: 1.5rem;">
+      <h1 class="display-4 fw-bold mb-3" style="color: #9932cc;">Welcome to JOWIS Tracker</h1>
+      <p class="lead mb-4" style="font-size: 1.25rem;">
+        The all-in-one workspace for JOWIS staff to manage projects, milestones, and teamwork with clarity and ease.<br>
+        <span style="color: #6a1b9a;">Stay organized. Stay connected. Deliver excellence.</span>
+      </p>
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <a href="{{ url_for('main.account_request') }}" class="btn btn-primary btn-lg px-4">Request an Account</a>
+        <a href="{{ url_for('main.login') }}" class="btn btn-outline-primary btn-lg px-4">Login</a>
+      </div>
+    </div>
+    <div class="col-md-6 text-center mt-5 mt-md-0">
+      <img src="{{ url_for('static', filename='img/landing-illustration.png') }}" alt="Teamwork Illustration" class="img-fluid" style="max-height: 340px;">
+    </div>
+  </div>
+
+  <hr class="my-5">
+
+  <div class="row text-center mb-5">
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <i class="bi bi-kanban-fill" style="font-size: 2.5rem; color: #9932cc;"></i>
+          <h5 class="card-title mt-3 mb-2">Project Management</h5>
+          <p class="card-text">Create, assign, and track projects and milestones. See progress at a glance and never miss a deadline.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <i class="bi bi-people-fill" style="font-size: 2.5rem; color: #9932cc;"></i>
+          <h5 class="card-title mt-3 mb-2">Team Collaboration</h5>
+          <p class="card-text">Invite colleagues, assign roles (Admin/Employee), and collaborate seamlessly on shared goals.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 mb-4">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body">
+          <i class="bi bi-bell-fill" style="font-size: 2.5rem; color: #9932cc;"></i>
+          <h5 class="card-title mt-3 mb-2">Smart Notifications</h5>
+          <p class="card-text">Stay updated with instant notifications for invites, project updates, and important deadlines.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row align-items-center mt-5">
+    <div class="col-md-6 order-2 order-md-1">
+      <h3 class="fw-bold mb-3" style="color: #6a1b9a;">Why JOWIS Tracker?</h3>
+      <ul class="list-unstyled fs-5">
+        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Designed for JOWIS staff workflow</li>
+        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Secure, role-based access</li>
+        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> Easy onboarding for new team members</li>
+        <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> All your projects, one dashboard</li>
+      </ul>
+      <div class="mt-4">
+        <a href="{{ url_for('main.account_request') }}" class="btn btn-success btn-lg me-2">Get Started</a>
+        <a href="{{ url_for('main.login') }}" class="btn btn-outline-secondary btn-lg">Already have an account?</a>
+      </div>
+    </div>
+    <div class="col-md-6 order-1 order-md-2 text-center mb-4 mb-md-0">
+      <img src="{{ url_for('static', filename='img/teamwork.png') }}" alt="Collaboration" class="img-fluid" style="max-height: 260px;">
+    </div>
+  </div>
+</div>
 {% endblock %}
