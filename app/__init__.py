@@ -64,7 +64,7 @@ def create_app():
         if not User.query.filter_by(username="superadmin").first():
             second_admin = User(
                 username="superadmin",
-                email="superadmin@jowis.com",
+                email="feranmi1jaiyeoba@jowis.com",
                 role="admin",
                 must_change_password=True
             )
