@@ -36,7 +36,7 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password_hash, password)
 
 class Project(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(150), nullable=False)
     description = db.Column(db.Text, nullable=False)
     tasks = db.relationship("Task", backref="project", cascade="all, delete-orphan", passive_deletes=True)
