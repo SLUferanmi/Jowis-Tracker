@@ -17,8 +17,8 @@ project_users = db.Table(
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
-    email = db.Column(db.String(150), unique=True, nullable=False)
-    password_hash = db.Column(db.String(150), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     tasks = db.relationship("Task", backref="assigned_to", cascade='all, delete-orphan',passive_deletes=True)
     role = db.Column(db.String(50), nullable=False, default="employee") # or admin
     must_change_password = db.Column(db.Boolean, default=True)
