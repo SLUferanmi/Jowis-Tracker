@@ -362,9 +362,17 @@ def admin_create_user():
         db.session.commit()
         # Notify and email the new user
         send_email(
-            subject="Your Jowis Tracker Account",
+            subject="Welcome to Jowis Tracker – Your Account Details",
             recipients=[email],
-            body=f"Your account has been created!\nUsername: {username}\nPassword: {default_password}\nPlease log in and change your password immediately."
+            body=(
+                "Hello,\n\n"
+                "This is an automated message from Jowis Tracker.\n\n"
+                f"Your account has been created!\nUsername: {username}\nPassword: {default_password}\n"
+                "Please log in and change your password immediately.\n\n"
+                "Access your account here:\n"
+                ""https://jowis-tracker.onrender.com/login"\n\n"
+                "If you did not expect this email, please ignore it or contact support."
+            )
         )
         notify(new_user, "Your account has been created. Please change your password on first login.")
         flash("User created and notified.", "success")
@@ -396,7 +404,15 @@ def admin_project_detail(project_id):
                 send_email(
                     subject="Admin Comment on Your Project",
                     recipients=[user.email],
-                    body=f"Hi {user.username},\n\nAn admin commented on your project '{project.title}':\n\n{project.comment}\n\nPlease log in to view details."
+                    body=(
+                        f"Hello {user.username},\n\n"
+                        "This is a notification from Jowis Tracker.\n\n"
+                        f"An admin commented on your project '{project.title}':\n\n"
+                        f"{project.comment}\n\n"
+                        "View your project details here:\n"
+                        f""https://jowis-tracker.onrender.com/project/{project.id}"\n\n"
+                        "If you have questions, please contact your admin."
+                    )
                 )
         return redirect(url_for('main.admin_project_detail', project_id=project.id))
     return render_template('admin_project_detail.html', project=project,  employees=employees, assigned_user_ids=assigned_user_ids)
@@ -452,9 +468,17 @@ def forgot_password():
             user.reset_code_expiry = datetime.utcnow() + timedelta(minutes=15)
             db.session.commit()
             send_email(
-                subject="Password Reset Code",
+                subject="Jowis Tracker: Password Reset Request",
                 recipients=[user.email],
-                body=f"Your password reset code is: {code}\nThis code expires in 15 minutes."
+                body=(
+                    "Hello,\n\n"
+                    "You requested a password reset on Jowis Tracker.\n"
+                    f"Your password reset code is: {code}\n"
+                    "This code expires in 15 minutes.\n\n"
+                    "Reset your password here:\n"
+                    f""https://jowis-tracker.onrender.com/reset_password/{user.id}"\n\n"
+                    "If you did not request this, please ignore this email."
+                )
             )
             return redirect(url_for('main.reset_password', user_id=user.id))
         else:
@@ -496,13 +520,19 @@ def invite_user(project_id):
         db.session.commit()
         accept_url = url_for('main.dashboard', _external=True)
         send_email(
-            subject="Project Collaboration Invite",
+            subject="Jowis Tracker: Project Collaboration Invite",
             recipients=[email],
-            body=f"You've been invited to join the project '{project.title}'.\n"
-                 f"Login to your dashboard to accept the invite.\n"
-                 f"Project details:\nTitle: {project.title}\nDescription: {project.description}\nDeadline: {project.deadline}\n"
-                 f"Invited by: {current_user.username}\n"
-                 f"Or click: {accept_url}"
+            body=(
+                "Hello,\n\n"
+                "You have been invited to join a project on Jowis Tracker.\n\n"
+                f"Project: {project.title}\n"
+                f"Description: {project.description}\n"
+                f"Deadline: {project.deadline}\n"
+                f"Invited by: {current_user.username}\n\n"
+                "To accept or decline this invitation, please visit:\n"
+                f""https://jowis-tracker.onrender.com/invitations"\n\n"
+                "If you did not expect this invitation, you can safely ignore this email."
+            )
         )
         flash("Invitation sent.", "success")
         notify(current_user, f"You sent an invite to {email} for project '{project.title}'.")
@@ -571,9 +601,16 @@ def account():
         if changed:
             db.session.commit()
             send_email(
-                subject="Account Details Changed",
+                subject="Jowis Tracker: Account Details Changed",
                 recipients=[current_user.email],
-                body=f"Hi {current_user.username},\n\nYour account details have been updated.\n\nIf you did not make this change, please contact support."
+                body=(
+                    f"Hello {current_user.username},\n\n"
+                    "This is a notification from Jowis Tracker.\n\n"
+                    "Your account details have been updated.\n"
+                    "If you did not make this change, please contact support immediately.\n\n"
+                    "You can review your account here:\n"
+                    "https://jowis-tracker.onrender.com/account"
+                )
             )
             flash("Account details updated and notification sent to your email.", "success")
             notify(current_user, "Your account details were updated.")
@@ -591,9 +628,17 @@ def change_password():
         current_user.reset_code_expiry = datetime.utcnow() + timedelta(minutes=15)
         db.session.commit()
         send_email(
-            subject="Password Change Code",
+            subject="Jowis Tracker: Password Change Request",
             recipients=[current_user.email],
-            body=f"Your password change code is: {code}\nThis code expires in 15 minutes."
+            body=(
+                "Hello,\n\n"
+                "You requested to change your password on Jowis Tracker.\n"
+                f"Your password change code is: {code}\n"
+                "This code expires in 15 minutes.\n\n"
+                "Change your password here:\n"
+                ""https://jowis-tracker.onrender.com/confirm_change_password"\n\n"
+                "If you did not request this, please ignore this email."
+            )
         )
         flash("A code has been sent to your email. Enter it below to change your password.", "info")
         return redirect(url_for('main.confirm_change_password'))
@@ -619,9 +664,15 @@ def confirm_change_password():
             current_user.must_change_password = False  # <-- HERE
             db.session.commit()
             send_email(
-                subject="Password Changed",
+                subject="Jowis Tracker: Password Changed",
                 recipients=[current_user.email],
-                body="Your password has been changed successfully. If you did not perform this action, contact support immediately."
+                body=(
+                    "Hello,\n\n"
+                    "Your password on Jowis Tracker has been changed successfully.\n"
+                    "If you did not perform this action, please contact support immediately.\n\n"
+                    "Login here:\n"
+                    "https://jowis-tracker.onrender.com/login"
+                )
             )
             flash("Password changed successfully.", "success")
             notify(current_user, "Your password was changed.")
@@ -653,7 +704,14 @@ def account_request():
             send_email(
                 subject="New Account Request",
                 recipients=[admin.email],
-                body=f"User '{username}' with email '{email}' has requested an account."
+                body=(
+                    "Hello Admin,\n\n"
+                    "A new user has requested an account on Jowis Tracker.\n\n"
+                    f"Name: {username}\n"
+                    f"Email: {email}\n\n"
+                    "Review account requests here:\n"
+                    "https://jowis-tracker.onrender.com/admin/users"
+                )
             )
         flash("Your request has been sent to the admins. You will be notified by email.", "info")
         return redirect(url_for("main.login"))
