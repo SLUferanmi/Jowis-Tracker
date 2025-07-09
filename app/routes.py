@@ -370,7 +370,7 @@ def admin_create_user():
                 f"Your account has been created!\nUsername: {username}\nPassword: {default_password}\n"
                 "Please log in and change your password immediately.\n\n"
                 "Access your account here:\n"
-                ""https://jowis-tracker.onrender.com/login"\n\n"
+                "https://jowis-tracker.onrender.com/login"
                 "If you did not expect this email, please ignore it or contact support."
             )
         )
@@ -410,7 +410,7 @@ def admin_project_detail(project_id):
                         f"An admin commented on your project '{project.title}':\n\n"
                         f"{project.comment}\n\n"
                         "View your project details here:\n"
-                        f""https://jowis-tracker.onrender.com/project/{project.id}"\n\n"
+                        f"https://jowis-tracker.onrender.com/project/{project.id}"
                         "If you have questions, please contact your admin."
                     )
                 )
@@ -476,7 +476,7 @@ def forgot_password():
                     f"Your password reset code is: {code}\n"
                     "This code expires in 15 minutes.\n\n"
                     "Reset your password here:\n"
-                    f""https://jowis-tracker.onrender.com/reset_password/{user.id}"\n\n"
+                    f"https://jowis-tracker.onrender.com/reset_password/{user.id}"
                     "If you did not request this, please ignore this email."
                 )
             )
@@ -530,7 +530,7 @@ def invite_user(project_id):
                 f"Deadline: {project.deadline}\n"
                 f"Invited by: {current_user.username}\n\n"
                 "To accept or decline this invitation, please visit:\n"
-                f""https://jowis-tracker.onrender.com/invitations"\n\n"
+                f"https://jowis-tracker.onrender.com/invitations"
                 "If you did not expect this invitation, you can safely ignore this email."
             )
         )
@@ -636,7 +636,7 @@ def change_password():
                 f"Your password change code is: {code}\n"
                 "This code expires in 15 minutes.\n\n"
                 "Change your password here:\n"
-                ""https://jowis-tracker.onrender.com/confirm_change_password"\n\n"
+                "https://jowis-tracker.onrender.com/confirm_change_password"
                 "If you did not request this, please ignore this email."
             )
         )
