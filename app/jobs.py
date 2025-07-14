@@ -6,10 +6,18 @@ from app.utils import send_email
 def remind_projects():
     with scheduler.app.app_context():
         for user in User.query.filter_by(role='employee').all():
-            projects = user.projects
-            if projects:
+            active_projects = [p for p in user.projects if p.status != 'Completed']
+            if active_projects:
                 send_email(
-                    subject="Project Reminder",
+                    subject="Jowis Tracker: Project Reminder",
                     recipients=[user.email],
-                    body=f"Hi {user.username},\n\nYou have {len(projects)} active projects. Please check your dashboard."
+                    body=(
+                        f"Hello {user.username},\n\n"
+                        "This is an automated reminder from Jowis Tracker.\n\n"
+                        f"You have {len(active_projects)} active project(s) assigned to you.\n"
+                        "Please review your dashboard for details and deadlines.\n\n"
+                        "Access your dashboard here:\n"
+                        "https://jowis-tracker.onrender.com/dashboard"
+                        "If you have any questions or need assistance, please contact your admin."
+                    )
                 )

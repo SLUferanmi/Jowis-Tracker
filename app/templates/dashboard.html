@@ -1,6 +1,5 @@
-{% extends "base.html" %} {% block content %}
-<!-- <script src="https://cdn.tailwindcss.com"></script> -->
-
+{% extends "base.html" %} 
+{% block content %}
 <div class="container mt-4">
   <div class="d-flex align-items-center mb-4" style="gap: 0.5rem;">
     <span class="dashboard-header" style="margin-bottom: 0;">Your</span>
@@ -12,101 +11,55 @@
     <span class="dashboard-header" style="margin-bottom: 0;">Space</span>
   </div>
 
-
-  <!-- <h3 class="text-lg font-bold">Welcome, David-26!</h3>
+  <h3 class="text-lg font-bold">Welcome, {{ current_user.username }}!</h3>
   <p class="text-sm text-blue-700">
-    You have 3 active projects and 2 pending tasks.
+    You have {{ active_count }} active {{ 'project' if active_count == 1 else 'projects' }} and {{ pending_tasks }} pending {{ 'task' if pending_tasks == 1 else 'tasks' }}.
   </p>
-</div> -->
 
-  <div class="dashboard-info mb-4">
-    <h3 class="text-lg font-bold">Welcome, {{ current_user.username }}!</h3>
-    <p class="text-sm text-blue-700">
-      You have {{ active_count }} active {{ 'project' if active_count == 1 else
-      'projects' }} and {{ pending_tasks }} pending {{ 'task' if pending_tasks
-      == 1 else 'tasks' }}.
-    </p>
+  {% if pending_invites %}
+  <div class="alert alert-warning" style="animation: blinker 1s linear infinite">
+    <strong>
+      You have {{ pending_invites|length }} pending project invite{{ 's' if pending_invites|length > 1 else '' }}!
+    </strong>
+    <a href="{{ url_for('main.invitation_details') }}" class="btn btn-sm btn-primary ms-2">View Invites</a>
+  </div>
+  {% endif %}
 
-    <!-- <h4>Welcome, {{ current_user.username }}!</h4> -->
-    <!-- <a
-    href="{{ url_for('main.logout') }}"
-    class="btn btn-outline-danger btn-sm float-end mb-3"
-    >Logout</a
-  > -->
+  <a href="{{ url_for('main.add_project') }}" class="btn btn-primary mb-4">Add Project</a>
 
-    {% if pending_invites %}
-    <div
-      class="alert alert-warning"
-      style="animation: blinker 1s linear infinite"
-    >
-      <strong
-        >You have {{ pending_invites|length }} pending project invite{{ 's' if
-        pending_invites|length > 1 else '' }}!</strong
-      >
-      <a
-        href="{{ url_for('main.invitation_details') }}"
-        class="btn btn-sm btn-primary ms-2"
-        >View Invites</a
-      >
-    </div>
-    {% endif %}
-    <!-- <div class="bg-blue-100 p-4 rounded mb-4">
-    <h3 class="text-lg font-bold">Welcome, David-26!</h3>
-    <p class="text-sm text-blue-700">
-      You have 3 active projects and 2 pending tasks.
-    </p>
-  </div> -->
+  <div class="flex flex-wrap gap-4 mt-4 mb-4">
+    <a href="{{ url_for('main.dashboard', show_pending=1) }}" class="btn btn-outline-secondary">View Pending Projects</a>
+    <a href="{{ url_for('main.dashboard', show_completed=1) }}" class="btn btn-outline-success ms-2">View Completed Projects</a>
+    <a href="{{ url_for('main.dashboard', show_all=1) }}" class="btn btn-outline-primary ms-2">View All Projects</a>
+  </div>
 
-    <a href="{{ url_for('main.add_project') }}" class="btn btn-primary mb-4"
-      >Add Project</a
-    >
+  <div class="row">
+    {% for project in projects %}
+    <div class="col-md-4">
+      <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title mb-0">{{ project.title }}</h5>
+            {% if project.status == 'Completed' %}
+              <span class="badge bg-success">{{ project.status }}</span>
+            {% elif project.status == 'Pending' %}
+              <span class="badge bg-danger">{{ project.status }}</span>
+            {% elif project.status == 'In Progress' %}
+              <span class="badge bg-warning text-dark">{{ project.status }}</span>
+            {% else %}
+              <span class="badge bg-secondary">Unknown</span>
+            {% endif %}
+          </div>
+          <h6 class="card-subtitle mb-2 text-muted">
+            Assigned to: {% for user in project.users %} {{ user.username }}{% if not loop.last %}, {% endif %} {% endfor %}
+          </h6>
+          <p>
+            <strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}
+          </p>
 
-    <div class="flex flex-wrap gap-4 mt-4 mb-4">
-      <a
-        href="{{ url_for('main.dashboard', show_pending=1) }}"
-        class="btn btn-outline-secondary"
-        >View Pending Projects</a
-      >
-      <a
-        href="{{ url_for('main.dashboard', show_completed=1) }}"
-        class="btn btn-outline-success ms-2"
-        >View Completed Projects</a
-      >
-      <a
-        href="{{ url_for('main.dashboard', show_all=1) }}"
-        class="btn btn-outline-primary ms-2"
-        >View All Projects</a
-      >
-    </div>
-
-    <div class="row">
-      {% for project in projects %}
-      <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <h5 class="card-title mb-0">{{ project.title }}</h5>
-              {% if project.status == 'Completed' %}
-                <span class="badge bg-success">{{ project.status }}</span>
-              {% elif project.status == 'Pending' %}
-                <span class="badge bg-danger">{{ project.status }}</span>
-              {% elif project.status == 'In Progress' %}
-                <span class="badge bg-warning text-dark">{{ project.status }}</span>
-              {% else %}
-                <span class="badge bg-secondary">Unknown</span>
-              {% endif %}
-            </div>
-            <h6 class="card-subtitle mb-2 text-muted">
-              Assigned to: {% for user in project.users %} {{ user.username }}{% if not loop.last %}, {% endif %} {% endfor %}
-            </h6>
-            <p>
-              <strong>Deadline:</strong> {{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}
-            </p>
-
-            {% set incomplete_milestones = project.milestones |
-            selectattr('status', 'ne', 'Completed') | sort(attribute='deadline')
-            | list %} {% if incomplete_milestones %} {% set urgent =
-            incomplete_milestones[0] %}
+          {% set incomplete_milestones = project.milestones | selectattr('status', 'ne', 'Completed') | sort(attribute='deadline') | list %}
+          {% if incomplete_milestones %}
+            {% set urgent = incomplete_milestones[0] %}
             <div class="d-flex justify-content-between align-items-center">
               <p class="mb-0">
                 <strong>Prioritized Milestone:</strong> {{ urgent.name }}
@@ -119,22 +72,17 @@
                 <span class="badge bg-secondary ms-2">Unknown</span>
               {% endif %}
             </div>
-            {% else %}
-            <p class="text-muted">
-              No prioritized milestones (all completed or none exist).
-            </p>
-            {% endif %}
+          {% else %}
+          <p class="text-muted">
+            No prioritized milestones (all completed or none exist).
+          </p>
+          {% endif %}
 
-            <a
-              href="{{ url_for('main.project_detail', project_id=project.id) }}"
-              class="btn btn-primary btn-sm mt-2"
-              >View Details</a
-            >
-          </div>
+          <a href="{{ url_for('main.project_detail', project_id=project.id) }}" class="btn btn-primary btn-sm mt-2">View Details</a>
         </div>
       </div>
-      {% endfor %}
     </div>
+    {% endfor %}
   </div>
 
   <style>
@@ -144,6 +92,4 @@
       }
     }
   </style>
-
-  {% endblock %}
-</div>
+{% endblock %}
