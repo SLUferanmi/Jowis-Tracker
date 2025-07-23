@@ -402,6 +402,20 @@ input[type="submit"]:hover,
   color: #a084ca !important;
 }
 
+/* Fix button size for admin projects actions */
+.fix-btn-size {
+  padding: 0.4em 1.2em !important;
+  border-radius: 2em !important;
+  font-size: 1rem !important;
+  min-width: 90px;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  display: inline-block;
+  vertical-align: middle;
+  box-sizing: border-box;
+}
+
 @media (max-width: 768px) {
   .dashboard-info,
   .card-body {

@@ -34,10 +34,12 @@
         </td>
         <td>{{ project.deadline.strftime('%Y-%m-%d %H:%M') if project.deadline else 'N/A' }}</td>
         <td>
-          <a href="{{ url_for('main.admin_project_detail', project_id=project.id) }}" class="btn btn-info btn-sm">View/Edit</a>
-          <form action="{{ url_for('main.delete_project', project_id=project.id) }}" method="POST" style="display:inline;">
-            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Delete this project?');">Delete</button>
-          </form>
+          <div class="d-flex gap-2 align-items-center flex-row">
+            <a href="{{ url_for('main.admin_project_detail', project_id=project.id) }}" class="btn btn-primary btn-sm fix-btn-size text-center d-flex justify-content-center align-items-center">View</a>
+            <form action="{{ url_for('main.delete_project', project_id=project.id) }}" method="post" style="margin:0;">
+              <button type="submit" class="btn btn-danger btn-sm fix-btn-size text-center d-flex justify-content-center align-items-center">Delete</button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}

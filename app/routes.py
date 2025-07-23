@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request, Blueprint, abort
+from flask import render_template, redirect, url_for, flash, request, Blueprint, abort, session
 from flask_login import login_user, logout_user, login_required, current_user
 from .dbmodels import User, db, Project, Milestone, Task, ProjectInvite, Notification
 from datetime import datetime, timedelta
@@ -19,50 +19,61 @@ def index():
 @main.route("/dashboard")
 @login_required
 def dashboard():
+    # If admin is in admin view, redirect to admin dashboard
+    if current_user.role == "admin" and session.get('admin_view') != 'employee':
+        return redirect(url_for('main.admin_dashboard'))
     show_completed = request.args.get('show_completed')
     show_all = request.args.get('show_all')
     show_pending = request.args.get('show_pending')
-    if show_all:
-        if current_user.role == "admin":
-            projects = Project.query.all()
-        else:
-            projects = current_user.projects
-    elif show_completed:
-        if current_user.role == "admin":
-            projects = Project.query.filter_by(status='Completed').all()
-        else:
-            projects = [p for p in current_user.projects if p.status == 'Completed']
-    elif show_pending:
-        if current_user.role == "admin":
-            projects = Project.query.filter(Project.status != 'Completed').all()
-        else:
-            projects = [p for p in current_user.projects if p.status != 'Completed']
-    else:
-        # Default to pending
-        if current_user.role == "admin":
-            projects = Project.query.filter(Project.status != 'Completed').all()
-        else:
-            projects = [p for p in current_user.projects if p.status != 'Completed']
-
-    pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
-
     if current_user.role == "admin":
-        active_count = Project.query.filter(Project.status != 'Completed').count()
-        pending_tasks = Milestone.query.filter(Milestone.status != 'Completed').count()
-    else:
-        active_count = len([p for p in current_user.projects if p.status != 'Completed'])
-        # Count all milestones in user's projects that are not completed
+        # Admin in employee view: split projects
+        if show_all:
+            all_projects = Project.query.all()
+        elif show_completed:
+            all_projects = Project.query.filter_by(status='Completed').all()
+        elif show_pending:
+            all_projects = Project.query.filter(Project.status != 'Completed').all()
+        else:
+            all_projects = Project.query.filter(Project.status != 'Completed').all()
+        my_projects = [p for p in all_projects if current_user in p.users]
+        other_projects = [p for p in all_projects if current_user not in p.users]
+        pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
+        active_count = len([p for p in my_projects if p.status != 'Completed'])
         pending_tasks = sum(
-            1 for p in current_user.projects for m in p.milestones if m.status != 'Completed'
+            1 for p in my_projects for m in p.milestones if m.status != 'Completed'
         )
-
-    return render_template(
-        "dashboard.html",
-        projects=projects,
-        pending_invites=pending_invites,
-        active_count=active_count,
-        pending_tasks=pending_tasks
-    )
+        return render_template(
+            "dashboard.html",
+            my_projects=my_projects,
+            other_projects=other_projects,
+            pending_invites=pending_invites,
+            active_count=active_count,
+            pending_tasks=pending_tasks,
+            is_admin_employee_view=True
+        )
+    else:
+        # Regular employee
+        if show_all:
+            projects = current_user.projects
+        elif show_completed:
+            projects = [p for p in current_user.projects if p.status == 'Completed']
+        elif show_pending:
+            projects = [p for p in current_user.projects if p.status != 'Completed']
+        else:
+            projects = [p for p in current_user.projects if p.status != 'Completed']
+        pending_invites = ProjectInvite.query.filter_by(email=current_user.email, accepted=False).all()
+        active_count = len([p for p in projects if p.status != 'Completed'])
+        pending_tasks = sum(
+            1 for p in projects for m in p.milestones if m.status != 'Completed'
+        )
+        return render_template(
+            "dashboard.html",
+            projects=projects,
+            pending_invites=pending_invites,
+            active_count=active_count,
+            pending_tasks=pending_tasks,
+            is_admin_employee_view=False
+        )
 
 @main.route("/go_dashboard")
 @login_required
@@ -83,6 +94,12 @@ def project_detail(project_id):
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        # Redirect to dashboard if already logged in
+        if current_user.role == "admin":
+            return redirect(url_for("main.admin_dashboard"))
+        else:
+            return redirect(url_for("main.dashboard"))
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
@@ -144,6 +161,8 @@ def add_project():
         if current_user.role == "admin":
             selected_user_ids = request.form.getlist('assigned_users')
             selected_users = User.query.filter(User.id.in_(selected_user_ids)).all()
+            if not selected_users:
+                selected_users = [current_user]
             project.users = selected_users
         else:
             project.users = [current_user]
@@ -281,6 +300,9 @@ def update_milestone(milestone_id):
 @main.route('/admin')
 @login_required
 def admin_dashboard():
+    # If admin is in employee view, redirect to employee dashboard
+    if current_user.role == "admin" and session.get('admin_view') == 'employee':
+        return redirect(url_for('main.dashboard'))
     if current_user.role != "admin":
         abort(403)
     user_count = User.query.count()
@@ -731,6 +753,19 @@ def edit_user_role(user_id):
             flash("User role updated.", "success")
         return redirect(url_for('main.view_user', user_id=user.id))
     return render_template('edit_user_role.html', user=user)
+
+@main.route('/switch_view', methods=['GET'])
+@login_required
+def switch_view():
+    if current_user.role != 'admin':
+        abort(403)
+    to = request.args.get('to')
+    if to == 'employee':
+        session['admin_view'] = 'employee'
+        return redirect(url_for('main.dashboard'))
+    else:
+        session['admin_view'] = 'admin'
+        return redirect(url_for('main.admin_dashboard'))
 
 
 
